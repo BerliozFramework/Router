@@ -40,11 +40,12 @@ class RouteGenerator
      *
      * @param string $className
      * @param string $basePath
+     * @param array  $context
      *
      * @return \Berlioz\Router\RouteSetInterface
      * @throws \Berlioz\Router\Exception\RoutingException
      */
-    public function parseClass(string $className, string $basePath = ''): RouteSetInterface
+    public function parseClass(string $className, string $basePath = '', array $context = []): RouteSetInterface
     {
         $routeSet = new RouteSet;
 
@@ -53,11 +54,11 @@ class RouteGenerator
             if (class_exists($className)) {
                 $reflectionClass = new \ReflectionClass($className);
 
-                // Get all public methods of controller
+                // Get all public methods of class
                 $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
 
                 foreach ($methods as $method) {
-                    $routeSet->merge($this->fromReflectionFunction($method, $basePath));
+                    $routeSet->merge($this->fromReflectionFunction($method, $basePath, $context));
                 }
             } else {
                 throw new RoutingException(sprintf('Class "%s" doesn\'t exists', $className));
@@ -74,11 +75,12 @@ class RouteGenerator
      *
      * @param \ReflectionFunctionAbstract $reflectionFunction
      * @param string                      $basePath
+     * @param array                       $context
      *
      * @return \Berlioz\Router\RouteSetInterface
      * @throws \Berlioz\Router\Exception\RoutingException
      */
-    protected function fromReflectionFunction(\ReflectionFunctionAbstract $reflectionFunction, string $basePath = ''): RouteSetInterface
+    protected function fromReflectionFunction(\ReflectionFunctionAbstract $reflectionFunction, string $basePath = '', array $context = []): RouteSetInterface
     {
         $routeSet = new RouteSet;
 
@@ -88,9 +90,13 @@ class RouteGenerator
                     $docBlock = $this->getDocBlockFactory()->create($functionDoc);
 
                     if ($docBlock->hasTag('route')) {
+                        $context = array_replace($context,
+                                                 ['_class'  => $reflectionFunction->class,
+                                                  '_method' => $reflectionFunction->name]);
+
                         /** @var \phpDocumentor\Reflection\DocBlock\Tags\Generic $tag */
                         foreach ($docBlock->getTagsByName('route') as $tag) {
-                            $routeSet->addRoute($this->fromAnnotation($tag->getDescription()->render(), $basePath));
+                            $routeSet->addRoute($this->fromAnnotation($tag->getDescription()->render(), $basePath, $context));
                         }
                     }
                 }

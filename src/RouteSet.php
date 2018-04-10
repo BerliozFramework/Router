@@ -13,21 +13,18 @@
 namespace Berlioz\Router;
 
 
-use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\UriInterface;
 
 /**
  * Class RouteSet.
  *
- * @package Berlioz\Router\Router
+ * @package Berlioz\Router
  * @see     \Berlioz\Router\RouteSetInterface
  */
 class RouteSet implements RouteSetInterface
 {
     /** @var \Berlioz\Router\RouteInterface[] */
     private $routes;
-    /** @var string[] */
-    private $exceptionControllers;
 
     /**
      * RouteSet constructor.
@@ -35,7 +32,6 @@ class RouteSet implements RouteSetInterface
     public function __construct()
     {
         $this->routes = [];
-        $this->exceptionControllers = [];
     }
 
     /**

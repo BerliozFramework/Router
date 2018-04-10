@@ -34,4 +34,15 @@ class RouteGeneratorTest extends TestCase
         $routeGenerator = new RouteGenerator;
         $routeGenerator->parseClass('\Berlioz\Router\Tests\Includes\ControllerTestTest');
     }
+
+    public function testContext()
+    {
+        $routeGenerator = new RouteGenerator;
+        $routeSet = $routeGenerator->parseClass('\Berlioz\Router\Tests\Includes\ControllerTest', '', ['aContext' => 'value']);
+        $this->assertInstanceOf(RouteInterface::class, $route = $routeSet->getByName('method1'));
+        $this->assertEquals(['aContext' => 'value',
+                             '_class'   => 'Berlioz\Router\Tests\Includes\ControllerTest',
+                             '_method'  => 'methodTest1'],
+                            $route->getContext());
+    }
 }

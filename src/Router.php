@@ -21,6 +21,12 @@ use Berlioz\Http\Message\Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 
+/**
+ * Class Router.
+ *
+ * @package Berlioz\Router
+ * @see     \Berlioz\Router\RouterInterface
+ */
 class Router implements RouterInterface
 {
     use LoggerAwareTrait;
@@ -34,7 +40,7 @@ class Router implements RouterInterface
      */
     public function __sleep(): array
     {
-        return ['routeSet', 'errorRouteSet'];
+        return ['routeSet'];
     }
 
     /**
