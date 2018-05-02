@@ -12,184 +12,165 @@
 
 namespace Berlioz\Router;
 
-
+use Berlioz\PhpDoc\DocBlock;
+use Berlioz\PhpDoc\PhpDocFactory;
 use Berlioz\Router\Exception\RoutingException;
-use phpDocumentor\Reflection\DocBlockFactory;
+use Psr\SimpleCache\CacheException;
 
 class RouteGenerator
 {
-    /** @var \phpDocumentor\Reflection\DocBlockFactory */
-    private static $docBlockFactory;
+    /** @var \Berlioz\PhpDoc\PhpDocFactory */
+    private $phpDocFactory;
 
     /**
-     * Get DockBlockFactory object to read doc block.
+     * RouteGenerator constructor.
      *
-     * @return \phpDocumentor\Reflection\DocBlockFactory
+     * @param \Berlioz\PhpDoc\PhpDocFactory|null $phpDocFactory
      */
-    private function getDocBlockFactory(): DocBlockFactory
+    public function __construct(?PhpDocFactory $phpDocFactory = null)
     {
-        if (is_null(self::$docBlockFactory)) {
-            self::$docBlockFactory = DocBlockFactory::createInstance();
+        $this->phpDocFactory = $phpDocFactory;
+    }
+
+    /**
+     * Get PhpDocFactory object to read phpDoc.
+     *
+     * @return \Berlioz\PhpDoc\PhpDocFactory
+     */
+    public function getPhpDocFactory(): PhpDocFactory
+    {
+        if (is_null($this->phpDocFactory)) {
+            $this->phpDocFactory = new PhpDocFactory;
         }
 
-        return self::$docBlockFactory;
+        return $this->phpDocFactory;
     }
 
     /**
      * Generate routes from class name.
      *
-     * @param string $className
+     * @param string $class
      * @param string $basePath
      * @param array  $context
      *
      * @return \Berlioz\Router\RouteSetInterface
      * @throws \Berlioz\Router\Exception\RoutingException
+     * @throws \Psr\SimpleCache\CacheException
      */
-    public function parseClass(string $className, string $basePath = '', array $context = []): RouteSetInterface
+    public function fromClass(string $class, string $basePath = '', array $context = []): RouteSetInterface
     {
-        $routeSet = new RouteSet;
-
         try {
-            // Do the reflection of class, create the object and do the mapping
-            if (class_exists($className)) {
-                $reflectionClass = new \ReflectionClass($className);
+            $routeSet = new RouteSet;
 
-                // Get all public methods of class
-                $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
+            $class = ltrim($class, '\\');
+            $docs = $this->getPhpDocFactory()->getClassDocs($class);
+            $docs =
+                array_filter($docs,
+                    function (DocBlock $doc) {
+                        return $doc->hasTag('route');
+                    });
 
-                foreach ($methods as $method) {
-                    $routeSet->merge($this->fromReflectionFunction($method, $basePath, $context));
+            if (count($docs) > 0) {
+                $classDoc = $docs[$class] ?? null;
+
+                // Check class doc constraints
+                if ($classDoc instanceof DocBlock\ClassDocBlock && count($classDoc->getTag('route')) > 1) {
+                    throw new RoutingException(sprintf('Controller "%s" must not declare @route annotation more than one time in PhpDoc of class', $class));
                 }
-            } else {
-                throw new RoutingException(sprintf('Class "%s" doesn\'t exists', $className));
-            }
-        } catch (\Exception $e) {
-            throw new RoutingException(sprintf('Unable to generate routes from class "%s"', $className), 0, $e);
-        }
 
-        return $routeSet;
+                foreach ($docs as $doc) {
+                    if ($doc instanceof DocBlock\MethodDocBlock) {
+                        // Filter public methods
+                        if ($doc->isPublic() &&
+                            !$doc->isConstructor() &&
+                            !$doc->isConstructor() &&
+                            !$doc->isAbstract() &&
+                            !$doc->isStatic()) {
+                            $routeSet->merge($this->fromDocBlock($doc, $classDoc, $basePath, $context));
+                        }
+                    }
+                }
+            }
+
+            return $routeSet;
+        } catch (CacheException $e) {
+            throw $e;
+        } catch (RoutingException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw new RoutingException(sprintf('Unable to parse routes from class "%s"', $class), 0, $e);
+        }
     }
 
     /**
-     * Generate route from function.
+     * Generate routes from DocBlock objects.
      *
-     * @param \ReflectionFunctionAbstract $reflectionFunction
-     * @param string                      $basePath
-     * @param array                       $context
+     * @param \Berlioz\PhpDoc\DocBlock\AbstractFunctionDocBlock $docBlock
+     * @param \Berlioz\PhpDoc\DocBlock|null                     $baseDocBlock
+     * @param string                                            $basePath
+     * @param array                                             $context
      *
      * @return \Berlioz\Router\RouteSetInterface
      * @throws \Berlioz\Router\Exception\RoutingException
      */
-    protected function fromReflectionFunction(\ReflectionFunctionAbstract $reflectionFunction, string $basePath = '', array $context = []): RouteSetInterface
+    protected function fromDocBlock(DocBlock\AbstractFunctionDocBlock $docBlock, ?DocBlock $baseDocBlock = null, string $basePath = '', array $context = []): RouteSetInterface
     {
         $routeSet = new RouteSet;
 
-        try {
-            if (!($reflectionFunction instanceof \ReflectionMethod) || $reflectionFunction->isPublic()) {
-                if ($functionDoc = $reflectionFunction->getDocComment()) {
-                    $docBlock = $this->getDocBlockFactory()->create($functionDoc);
+        // Define context
+        if ($docBlock instanceof DocBlock\MethodDocBlock) {
+            $context = array_replace($context,
+                                     ['_class'  => $docBlock->getClassName(),
+                                      '_method' => $docBlock->getShortName()]);
+        } else {
+            $context = array_replace($context,
+                                     ['_function' => $docBlock->getName()]);
+        }
 
-                    if ($docBlock->hasTag('route')) {
-                        $context = array_replace($context,
-                                                 ['_class'  => $reflectionFunction->class,
-                                                  '_method' => $reflectionFunction->name]);
+        // Base path and options
+        $baseOptions = [];
+        if (!is_null($baseDocBlock) && ($baseTag = $baseDocBlock->getTag('route'))) {
+            $baseTag = reset($baseTag);
+            $baseTagValue = $baseTag->getValue();
 
-                        /** @var \phpDocumentor\Reflection\DocBlock\Tags\Generic $tag */
-                        foreach ($docBlock->getTagsByName('route') as $tag) {
-                            $routeSet->addRoute($this->fromAnnotation($tag->getDescription()->render(), $basePath, $context));
-                        }
-                    }
+            if (is_array($baseTagValue)) {
+                if ((isset($baseTagValue['path']) && is_string($baseTagValue['path']) && $pathKey = 'path') ||
+                    (isset($baseTagValue[0]) && is_string($baseTagValue[0])) && $pathKey = 0) {
+                    $basePath = sprintf('/%s/%s', ltrim($basePath, '/'), ltrim($baseTagValue[$pathKey], '/'));
+                    $basePath = sprintf('/%s', ltrim($basePath, '/'));
+                    unset($baseTagValue[$pathKey]);
+                }
+
+                $baseOptions = $baseTagValue;
+            } else {
+                throw new RoutingException(sprintf('Parse error of @route annotation: "@route %s"', $baseTag->getRaw()));
+            }
+        }
+
+        foreach ($docBlock->getTag('route') as $tag) {
+            $tagValue = $tag->getValue();
+
+            if (is_array($tagValue)) {
+                if ((isset($tagValue['path']) && is_string($tagValue['path']) && $pathKey = 'path') ||
+                    (isset($tagValue[0]) && is_string($tagValue[0])) && !$pathKey = 0) {
+                    // Get path and add base path
+                    $path = $tagValue[$pathKey];
+                    unset($tagValue[$pathKey]);
+                    $path = sprintf('/%s/%s', ltrim($basePath, '/'), ltrim($path, '/'));
+                    $path = sprintf('/%s', ltrim($path, '/'));
+
+                    // Create route
+                    $routeSet->addRoute(new Route($path,
+                                                  json_decode(json_encode(array_replace($baseOptions, $tagValue)), true),
+                                                  $context));
+                } else {
+                    throw new RoutingException(sprintf('Path not found in @route annotation: "@route %s"', $tag->getRaw()));
                 }
             } else {
-                /** @var \ReflectionMethod $reflectionFunction */
-                throw new RoutingException('Method given, must be public');
-            }
-        } catch (\Exception $e) {
-            if ($reflectionFunction instanceof \ReflectionMethod) {
-                throw new RoutingException(sprintf('Method "%s::%s" route error: %s', $reflectionFunction->class, $reflectionFunction->getName(), $e->getMessage()));
-            } else {
-                throw new RoutingException(sprintf('Function "%s" route error: %s', $reflectionFunction->getName(), $e->getMessage()));
+                throw new RoutingException(sprintf('Parse error of @route annotation: "@route %s"', $tag->getRaw()));
             }
         }
 
         return $routeSet;
-    }
-
-    /**
-     * Generate route from annotation.
-     *
-     * @param string $annotation
-     * @param string $basePath
-     * @param array  $context
-     *
-     * @return \Berlioz\Router\RouteInterface
-     * @throws \Berlioz\Router\Exception\RoutingException
-     */
-    protected function fromAnnotation(string $annotation, string $basePath = '', array $context = []): RouteInterface
-    {
-        try {
-            $regex_define = <<<'EOD'
-(?(DEFINE)
-    (?<d_quotes> \'(?>[^'\\]++|\\.)*\' | "(?>[^"\\]++|\\.)*" )
-    (?<d_json_element> (?: \g<d_quotes> | [\w_]+ ) \s* : \s* \g<d_quotes> )
-    (?<d_json> { \s* \g<d_json_element> (?: \s* , \s* \g<d_json_element> )* \s* } )
-    (?<d_bool> true | false )
-    (?<d_option> [\w_]+\s*=\s*(?: \g<d_json> | \g<d_quotes> | \g<d_bool> ) )
-)
-EOD;
-
-            $matches = [];
-            if (preg_match('~' . $regex_define . '^ \( \s* (?<route> \g<d_quotes> ) (?<options> (?: \s* , \s* \g<d_option> )+ )? \s* \) $ ~x', $annotation, $matches) == 1) {
-                // Treatment for base of path
-                if (!empty($basePath)) {
-                    // Remove slash at the end of base path
-                    if (substr($basePath, -1) == '/') {
-                        $basePath = substr($basePath, 0, -1);
-                    }
-                }
-
-                // Route
-                $routePath = ($basePath . substr($matches['route'], 1, -1));
-
-                // Options
-                $routeOptions = [];
-                if (!empty($matches['options'])) {
-                    $matchesOptions = [];
-                    if (preg_match_all('~' . $regex_define . '\s* , \s* (?<name> [\w_]+) \s* = \s* (?: (?<json> \g<d_json> ) | (?<bool> \g<d_bool> ) | (?<string> \g<d_quotes> ) ) \s* ~x', $matches['options'], $matchesOptions, PREG_SET_ORDER)) {
-                        foreach ($matchesOptions as $matchOption) {
-                            $optionName = $matchOption['name'];
-
-                            if (!empty($matchOption['json'])) {
-                                $optionValue = json_decode(addcslashes($matchOption['json'], '\\'), true);
-
-                                if ($optionValue !== false) {
-                                    if (!isset($routeOptions[$optionName])) {
-                                        $routeOptions[$optionName] = $optionValue;
-                                    } else {
-                                        $routeOptions[$optionName] = array_merge($routeOptions[$optionName], $optionValue);
-                                    }
-                                } else {
-                                    throw new RoutingException(sprintf('Invalid option format for "%s"', $optionName));
-                                }
-                            } else {
-                                if (!empty($matchOption['bool'])) {
-                                    $routeOptions[$optionName] = $matchOption['bool'] == true;
-                                } else {
-                                    if (!empty($matchOption['string'])) {
-                                        $routeOptions[$optionName] = substr($matchOption['string'], 1, -1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return new Route($routePath, $routeOptions, $context);
-            } else {
-                throw new RoutingException('Invalid regex');
-            }
-        } catch (\Exception $e) {
-            throw new RoutingException(sprintf('Parse error of @route annotation, "%s"', $annotation), 0, $e);
-        }
     }
 }

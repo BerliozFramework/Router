@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 use Berlioz\Http\Message\Request;
 use Berlioz\Http\Message\ServerRequest;
 use Berlioz\Http\Message\Stream;

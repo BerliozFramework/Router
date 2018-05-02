@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 use Psr\Http\Message\UriInterface;
 
 /**

@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 use Berlioz\Http\Message\Request;
 use Berlioz\Router\Exception\RoutingException;
 

@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router\Exception;
 
-
 class RoutingException extends \Exception
 {
 }

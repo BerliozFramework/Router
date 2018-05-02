@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 interface RouteInterface
 {
     /**

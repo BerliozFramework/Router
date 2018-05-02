@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 use Psr\Http\Message\ServerRequestInterface;
 
 interface RouterInterface
@@ -82,6 +81,7 @@ interface RouterInterface
      * @param \Psr\Http\Message\ServerRequestInterface|null $serverRequest Server request
      *
      * @return \Berlioz\Router\RouteInterface|null
+     * @throws \Berlioz\Router\Exception\RoutingException
      */
     public function handle(?ServerRequestInterface $serverRequest = null): ?RouteInterface;
 }

@@ -12,7 +12,6 @@
 
 namespace Berlioz\Router;
 
-
 class Parameter
 {
     /** @var string Name of parameter */
