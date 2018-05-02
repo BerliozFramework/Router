@@ -113,11 +113,15 @@ class Route implements RouteInterface
                            Request::HTTP_METHOD_PUT,
                            Request::HTTP_METHOD_DELETE];
 
-        if (isset($this->options['method']) && is_string($this->options['method'])) {
-            $methods = explode(',', mb_strtoupper($this->options['method'] ?? ''));
+        $methods = [];
+        if (isset($this->options['method'])) {
+            if (is_scalar($this->options['method'])) {
+                $methods = explode(',', (string) $this->options['method']);
+            } else {
+                $methods = (array) $this->options['method'];
+            }
+            $methods = array_map('mb_strtoupper', $methods);
             $methods = array_map('trim', $methods);
-        } else {
-            $methods = [];
         }
         $methods = array_intersect($methods, $defaultMethods);
 
