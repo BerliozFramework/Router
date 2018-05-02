@@ -17,7 +17,7 @@ $ composer require berlioz/router
 * **PHP** >= 7.1
 * Packages:
   * **berlioz/http-message**
-  * **phpdocumentor/reflection-docblock**
+  * **berlioz/php-doc**
   * **psr/log**
 
 
@@ -139,7 +139,7 @@ A `RouteGenerator` class is available to generate routes from classes.
 
 ```php
 $generator = new RouteGenerator;
-$routeSet = $generator->parseClass(Controller::class);
+$routeSet = $generator->fromClass(Controller::class);
 
 $router = new Router;
 $router->addRouteSet($routeSet);
