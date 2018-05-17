@@ -54,12 +54,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/BerliozFramework/PhpDoc.git",
-                "reference": "fd40b13f0f5e23e5fc5007cb6b0914a1662bc195"
+                "reference": "bc9211c87a12fb15b6cf41f2df491acd1b50c398"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BerliozFramework/PhpDoc/zipball/fd40b13f0f5e23e5fc5007cb6b0914a1662bc195",
-                "reference": "fd40b13f0f5e23e5fc5007cb6b0914a1662bc195",
+                "url": "https://api.github.com/repos/BerliozFramework/PhpDoc/zipball/bc9211c87a12fb15b6cf41f2df491acd1b50c398",
+                "reference": "bc9211c87a12fb15b6cf41f2df491acd1b50c398",
                 "shasum": ""
             },
             "require": {
@@ -88,7 +88,7 @@
             ],
             "description": "Berlioz PhpDoc",
             "homepage": "http://www.berlioz-framework.com",
-            "time": "2018-05-02 20:45:14"
+            "time": "2018-05-17 14:55:37"
         },
         {
             "name": "php-http/message-factory",
