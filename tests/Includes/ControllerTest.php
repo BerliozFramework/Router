@@ -28,4 +28,11 @@ class ControllerTest
     public function methodTest2()
     {
     }
+
+    /**
+     * @route("/third-path/")
+     */
+    public function methodTest3()
+    {
+    }
 }

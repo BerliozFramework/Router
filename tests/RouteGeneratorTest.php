@@ -22,7 +22,7 @@ class RouteGeneratorTest extends TestCase
         $routeGenerator = new RouteGenerator;
         $routeSet = $routeGenerator->fromClass('\Berlioz\Router\Tests\Includes\ControllerTest');
 
-        $this->assertEquals(2, count($routeSet));
+        $this->assertEquals(3, count($routeSet));
 
         $this->assertInstanceOf(RouteInterface::class, $route = $routeSet->getByName('method1'));
         $this->assertEquals('method1', $route->getName());
