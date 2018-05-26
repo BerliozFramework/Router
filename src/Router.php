@@ -199,7 +199,7 @@ class Router implements RouterInterface
     /**
      * @inheritdoc
      */
-    public function handle(?ServerRequestInterface $serverRequest = null): ?RouteInterface
+    public function handle(?ServerRequestInterface &$serverRequest = null): ?RouteInterface
     {
         // Log
         $this->log('debug', sprintf('%s', __METHOD__));

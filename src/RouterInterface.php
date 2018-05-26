@@ -83,5 +83,5 @@ interface RouterInterface
      * @return \Berlioz\Router\RouteInterface|null
      * @throws \Berlioz\Router\Exception\RoutingException
      */
-    public function handle(?ServerRequestInterface $serverRequest = null): ?RouteInterface;
+    public function handle(?ServerRequestInterface &$serverRequest = null): ?RouteInterface;
 }
