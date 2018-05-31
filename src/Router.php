@@ -106,7 +106,7 @@ class Router implements RouterInterface
         }
 
         // Query string
-        $queryString = $_SERVER['REDIRECT_QUERY_STRING'] ?? $_SERVER['REQUEST_URI'] ?? '';
+        $queryString = $_SERVER['REDIRECT_QUERY_STRING'] ?? $_SERVER['QUERY_STRING'] ?? '';
 
         // Headers
         $headers = [];
