@@ -157,7 +157,7 @@ class Route implements RouteInterface
 
         $parametersFound = [];
         foreach ($this->parameters as $parameter) {
-            if (!empty($parameters[$parameter->getName()])) {
+            if (isset($parameters[$parameter->getName()])) {
                 $value = (string) $parameters[$parameter->getName()];
             } else {
                 if ($parameter->hasDefaultValue()) {
