@@ -135,7 +135,7 @@ class RouteGenerator
 
             if (is_array($baseTagValue)) {
                 if ((isset($baseTagValue['path']) && is_string($baseTagValue['path']) && $pathKey = 'path') ||
-                    (isset($baseTagValue[0]) && is_string($baseTagValue[0])) && $pathKey = 0) {
+                    (isset($baseTagValue[0]) && is_string($baseTagValue[0])) && !$pathKey = 0) {
                     $basePath = sprintf('/%s/%s', ltrim($basePath, '/'), ltrim($baseTagValue[$pathKey], '/'));
                     $basePath = sprintf('/%s', ltrim($basePath, '/'));
                     unset($baseTagValue[$pathKey]);
