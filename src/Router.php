@@ -97,12 +97,8 @@ class Router implements RouterInterface
 
         // Path
         $path = null;
-        if (isset($_SERVER['REDIRECT_URL'])) {
-            $path = $_SERVER['REDIRECT_URL'];
-        } else {
-            if (isset($_SERVER['REQUEST_URI'])) {
-                $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            }
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         }
 
         // Query string
