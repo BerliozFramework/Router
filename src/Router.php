@@ -112,9 +112,15 @@ class Router implements RouterInterface
         if (function_exists('\getallheaders')) {
             $headers = \getallheaders() ?: [];
         } else {
-            foreach ($_SERVER as $name => $value) {
+            $serverVars = $_SERVER;
+            $serverVars['HTTP_CONTENT_TYPE'] = $serverVars['HTTP_CONTENT_TYPE'] ?? $serverVars['CONTENT_TYPE'] ?? null;
+            $serverVars['HTTP_CONTENT_LENGTH'] = $serverVars['HTTP_CONTENT_LENGTH'] ?? $serverVars['CONTENT_LENGTH'] ?? null;
+
+            foreach ($serverVars as $name => $value) {
                 if (substr($name, 0, 5) == 'HTTP_') {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                    if (!is_null($value)) {
+                        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                    }
                 }
             }
         }
