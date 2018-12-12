@@ -24,6 +24,16 @@ class ParameterTest extends TestCase
         $this->assertInstanceOf(Parameter::class, $parameter);
     }
 
+    public function testSerialization()
+    {
+        $parameter = new Parameter('test', 'defaultValue', '.*');
+
+        $serialized = serialize($parameter);
+        $unserialized = unserialize($serialized);
+
+        $this->assertEquals($parameter, $unserialized);
+    }
+
     public function testGetName()
     {
         $parameter = new Parameter('parameterName');

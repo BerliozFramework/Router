@@ -23,6 +23,17 @@ class RouteSetTest extends TestCase
         $this->assertInstanceOf(RouteSet::class, $routeSet);
     }
 
+    public function testSerialization()
+    {
+        $routeSet = new RouteSet;
+        $routeSet->addRoute(new Route('/path'));
+
+        $serialized = serialize($routeSet);
+        $unserialized = unserialize($serialized);
+
+        $this->assertEquals($routeSet, $unserialized);
+    }
+
     public function testAddRoute()
     {
         $routeSet = new RouteSet;

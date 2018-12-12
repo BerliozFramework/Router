@@ -31,6 +31,21 @@ class RouterTest extends TestCase
                                  new Stream);
     }
 
+    public function testSerialization()
+    {
+        $routeSet = new RouteSet;
+        $routeSet->addRoute(new Route('/path'));
+        $router = new Router;
+        $router->setRouteSet($routeSet);
+        $router->setServerRequest($this->getServerRequest());
+
+        $serialized = serialize($router);
+        $unserialized = unserialize($serialized);
+
+        $this->assertNotEquals($router, $unserialized);
+        $this->assertEquals($router->getRouteSet(), $unserialized->getRouteSet());
+    }
+
     public function testGetSetRouteSet()
     {
         $routeSet = new RouteSet;

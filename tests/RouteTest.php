@@ -40,6 +40,18 @@ class RouteTest extends TestCase
         $this->assertEquals('TestTestController', $route->getContext()['controller']);
     }
 
+    public function testSerialization()
+    {
+        $route = new Route('/my-path/{test}/{test2}',
+                           ['option1' => 'test', 'option2' => false],
+                           ['controller' => 'TestTestController']);
+
+        $serialized = serialize($route);
+        $unserialized = unserialize($serialized);
+
+        $this->assertEquals($route, $unserialized);
+    }
+
     public function testGetName()
     {
         $route = $this->getValidRoute();

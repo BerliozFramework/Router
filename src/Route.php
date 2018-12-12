@@ -17,7 +17,7 @@ namespace Berlioz\Router;
 use Berlioz\Http\Message\Request;
 use Berlioz\Router\Exception\RoutingException;
 
-class Route implements RouteInterface
+class Route implements RouteInterface, \Serializable
 {
     const REGEX_PARAMETER = '/{(?<name>[\w_]+)}/';
     /** @var string Route */
@@ -30,8 +30,6 @@ class Route implements RouteInterface
     private $context;
     /** @var \Berlioz\Router\Parameter[] Parameters */
     private $parameters;
-    /** @var mixed[] Parameters values */
-    private $parameters_values;
 
     /**
      * Route constructor.
@@ -46,7 +44,6 @@ class Route implements RouteInterface
         $this->options = $options;
         $this->context = $context;
         $this->parameters = [];
-        $this->parameters_values = [];
 
         // Read parameters
         $matchesParams = [];
@@ -66,10 +63,36 @@ class Route implements RouteInterface
     /**
      * @inheritdoc
      */
+    public function serialize(): string
+    {
+        return serialize(['route'       => $this->route,
+                          'options'     => $this->options,
+                          'route_regex' => $this->route_regex,
+                          'context'     => $this->context,
+                          'parameters'  => $this->parameters]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unserialize($serialized)
+    {
+        $tmpUnserialized = unserialize($serialized);
+
+        $this->route = $tmpUnserialized['route'];
+        $this->options = $tmpUnserialized['options'];
+        $this->route_regex = $tmpUnserialized['route_regex'];
+        $this->context = $tmpUnserialized['context'];
+        $this->parameters = $tmpUnserialized['parameters'];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getName(): string
     {
         if (!empty($this->options['name']) && is_string($this->options['name'])) {
-            return $this->options['name'];
+            return (string) $this->options['name'];
         } else {
             return spl_object_hash($this);
         }

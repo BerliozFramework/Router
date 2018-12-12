@@ -28,7 +28,7 @@ use Psr\Log\LoggerAwareTrait;
  * @package Berlioz\Router
  * @see     \Berlioz\Router\RouterInterface
  */
-class Router implements RouterInterface
+class Router implements RouterInterface, \Serializable
 {
     use LoggerAwareTrait;
     /** @var \Berlioz\Router\RouteSetInterface Route set */
@@ -39,9 +39,19 @@ class Router implements RouterInterface
     /**
      * @inheritdoc
      */
-    public function __sleep(): array
+    public function serialize(): string
     {
-        return ['routeSet'];
+        return serialize(['routeSet' => $this->routeSet]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unserialize($serialized)
+    {
+        $tmpUnserialized = unserialize($serialized);
+
+        $this->routeSet = $tmpUnserialized['routeSet'];
     }
 
     /**

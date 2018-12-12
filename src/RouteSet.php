@@ -22,7 +22,7 @@ use Psr\Http\Message\UriInterface;
  * @package Berlioz\Router
  * @see     \Berlioz\Router\RouteSetInterface
  */
-class RouteSet implements RouteSetInterface
+class RouteSet implements RouteSetInterface, \Serializable
 {
     /** @var \Berlioz\Router\RouteInterface[] */
     private $routes;
@@ -33,6 +33,24 @@ class RouteSet implements RouteSetInterface
     public function __construct()
     {
         $this->routes = [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function serialize(): string
+    {
+        return serialize(['routes' => $this->routes]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unserialize($serialized)
+    {
+        $tmpUnserialized = unserialize($serialized);
+
+        $this->routes = $tmpUnserialized['routes'];
     }
 
     /**

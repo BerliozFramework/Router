@@ -38,6 +38,28 @@ class Parameter
     }
 
     /**
+     * @inheritdoc
+     */
+    public function serialize(): string
+    {
+        return serialize(['name'            => $this->name,
+                          'defaultValue'    => $this->defaultValue,
+                          'regexValidation' => $this->regexValidation]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unserialize($serialized)
+    {
+        $tmpUnserialized = unserialize($serialized);
+
+        $this->name = $tmpUnserialized['name'];
+        $this->defaultValue = $tmpUnserialized['defaultValue'];
+        $this->regexValidation = $tmpUnserialized['regexValidation'];
+    }
+
+    /**
      * Get name.
      *
      * @return string
