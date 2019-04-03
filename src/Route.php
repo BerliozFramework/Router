@@ -192,7 +192,7 @@ class Route implements RouteInterface, \Serializable
                 }
             }
 
-            $route = str_replace('{' . $parameter->getName() . '}', $value, $route);
+            $route = str_replace('{' . $parameter->getName() . '}', urlencode($value), $route);
             $parametersFound[] = $parameter->getName();
         }
 
@@ -228,6 +228,7 @@ class Route implements RouteInterface, \Serializable
     public function extractAttributes(string $path): array
     {
         $matches = [];
+        $path = urldecode($path);
 
         if (preg_match($this->getRouteRegex(), $path, $matches) == 1) {
             return array_filter($matches, 'is_string', \ARRAY_FILTER_USE_KEY);

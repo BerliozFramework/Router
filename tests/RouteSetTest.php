@@ -128,6 +128,9 @@ class RouteSetTest extends TestCase
                                                 ['name'         => 'route7',
                                                  'requirements' => ['attr' => '.+'],
                                                  'defaults'     => ['attr' => 'all']]));
+        $routeSet->addRoute($route8 = new Route('/path-with spaces/{attr}',
+                                                ['name'         => 'route8',
+                                                 'requirements' => ['attr' => 'test test|test2']]));
 
         $uri = Uri::createFromString('https://www.phpunit.com/path/testAttr/testAttr2');
         $this->assertEquals($route1, $routeSet->searchRoute($uri));
@@ -158,6 +161,9 @@ class RouteSetTest extends TestCase
 
         $uri = Uri::createFromString('https://www.phpunit.com/third-path/test/test/test/new');
         $this->assertEquals($route7, $routeSet->searchRoute($uri));
+
+        $uri = Uri::createFromString('https://www.phpunit.com/path-with+spaces/test%20test');
+        $this->assertEquals($route8, $routeSet->searchRoute($uri));
     }
 
     public function testCount()

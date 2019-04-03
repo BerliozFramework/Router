@@ -116,7 +116,7 @@ class RouteSet implements RouteSetInterface, \Serializable
      */
     public function searchRoute(UriInterface $uri, string $method = null): ?RouteInterface
     {
-        $httpPath = $uri->getPath();
+        $httpPath = urldecode($uri->getPath());
 
         if (!empty($method)) {
             $method = mb_strtoupper($method);
