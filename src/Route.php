@@ -35,8 +35,10 @@ class Route implements RouteInterface, \Serializable
      * Route constructor.
      *
      * @param string $route
-     * @param array  $options
-     * @param array  $context
+     * @param array $options
+     * @param array $context
+     *
+     * @throws \Berlioz\Router\Exception\RoutingException
      */
     public function __construct(string $route, array $options = [], array $context = [])
     {
@@ -49,13 +51,15 @@ class Route implements RouteInterface, \Serializable
         $matchesParams = [];
         if (preg_match_all(self::REGEX_PARAMETER, $this->route, $matchesParams) > 0) {
             foreach ($matchesParams['name'] as $match) {
-                if (!isset($this->parameters[$match])) {
-                    $parameter = new Parameter($match,
-                                               $this->options['defaults'][$match] ?? null,
-                                               $this->options['requirements'][$match] ?? null);
-
-                    $this->parameters[$match] = $parameter;
+                if (isset($this->parameters[$match])) {
+                    throw new RoutingException(sprintf('Duplicate attribute "%s" in route "%s"', $match, $route));
                 }
+
+                $parameter = new Parameter($match,
+                                           $this->options['defaults'][$match] ?? null,
+                                           $this->options['requirements'][$match] ?? null);
+
+                $this->parameters[$match] = $parameter;
             }
         }
     }

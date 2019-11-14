@@ -166,4 +166,10 @@ class RouteTest extends TestCase
         $route = new Route('/my-path/value1/value2');
         $this->assertEquals(0, $route->getNumberOfParameters());
     }
+
+    public function testRouteWithDuplicateAttributes()
+    {
+        $this->expectException(RoutingException::class);
+        new Route('/my-path/{test}/{test2}/{test}');
+    }
 }
