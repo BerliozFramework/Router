@@ -16,8 +16,10 @@ namespace Berlioz\Router;
 
 use Berlioz\Http\Message\Request;
 use Berlioz\Router\Exception\RoutingException;
+use Serializable;
+use const ARRAY_FILTER_USE_KEY;
 
-class Route implements RouteInterface, \Serializable
+class Route implements RouteInterface, Serializable
 {
     const REGEX_PARAMETER = '/{(?<name>[\w_]+)}/';
     /** @var string Route */
@@ -196,7 +198,7 @@ class Route implements RouteInterface, \Serializable
                 }
             }
 
-            $route = str_replace('{' . $parameter->getName() . '}', urlencode($value), $route);
+            $route = str_replace('{' . $parameter->getName() . '}', $value, $route);
             $parametersFound[] = $parameter->getName();
         }
 
@@ -235,7 +237,7 @@ class Route implements RouteInterface, \Serializable
         $path = urldecode($path);
 
         if (preg_match($this->getRouteRegex(), $path, $matches) == 1) {
-            return array_filter($matches, 'is_string', \ARRAY_FILTER_USE_KEY);
+            return array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
         } else {
             throw new RoutingException(sprintf('Given path "%s" isn\'t valid for Route "%s"', $path, $this->getName()));
         }
@@ -254,7 +256,7 @@ class Route implements RouteInterface, \Serializable
      *
      * @return string
      */
-    private function getRouteRegex(): string
+    public function getRouteRegex(): string
     {
         if (is_null($this->route_regex)) {
             $route = $this;
