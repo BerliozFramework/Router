@@ -26,6 +26,8 @@ class RouteGeneratorTest extends TestCase
 
         $this->assertInstanceOf(RouteInterface::class, $route = $routeSet->getByName('method1'));
         $this->assertEquals('method1', $route->getName());
+        $this->assertArrayHasKey('foo_bar', $route->getOptions());
+        $this->assertFalse($route->getOptions()['foo_bar']);
     }
 
     public function testAddUnknownClass()

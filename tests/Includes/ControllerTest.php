@@ -16,7 +16,7 @@ namespace Berlioz\Router\Tests\Includes;
 class ControllerTest
 {
     /**
-     * @route("/path/{attr1}", name="method1", requirements={"attr1": "\d+"})
+     * @route("/path/{attr1}", name="method1", requirements={"attr1": "\d+"}, foo_bar=false)
      */
     public function methodTest1()
     {
