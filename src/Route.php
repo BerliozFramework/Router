@@ -57,9 +57,11 @@ class Route implements RouteInterface, Serializable
                     throw new RoutingException(sprintf('Duplicate attribute "%s" in route "%s"', $match, $route));
                 }
 
-                $parameter = new Parameter($match,
-                                           $this->options['defaults'][$match] ?? null,
-                                           $this->options['requirements'][$match] ?? null);
+                $parameter = new Parameter(
+                    $match,
+                    $this->options['defaults'][$match] ?? null,
+                    $this->options['requirements'][$match] ?? null
+                );
 
                 $this->parameters[$match] = $parameter;
             }
@@ -71,11 +73,15 @@ class Route implements RouteInterface, Serializable
      */
     public function serialize(): string
     {
-        return serialize(['route'       => $this->route,
-                          'options'     => $this->options,
-                          'route_regex' => $this->route_regex,
-                          'context'     => $this->context,
-                          'parameters'  => $this->parameters]);
+        return serialize(
+            [
+                'route' => $this->route,
+                'options' => $this->options,
+                'route_regex' => $this->route_regex,
+                'context' => $this->context,
+                'parameters' => $this->parameters,
+            ]
+        );
     }
 
     /**
@@ -98,7 +104,7 @@ class Route implements RouteInterface, Serializable
     public function getName(): string
     {
         if (!empty($this->options['name']) && is_string($this->options['name'])) {
-            return (string) $this->options['name'];
+            return (string)$this->options['name'];
         } else {
             return spl_object_hash($this);
         }
@@ -110,6 +116,23 @@ class Route implements RouteInterface, Serializable
     public function getOptions(): array
     {
         return $this->options ?? [];
+    }
+
+    /**
+     * Get option.
+     *
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getOption(string $name, $default = null)
+    {
+        if (array_key_exists($name, $this->options)) {
+            return $this->options[$name];
+        }
+
+        return $default;
     }
 
     /**
@@ -135,21 +158,23 @@ class Route implements RouteInterface, Serializable
      */
     public function getMethods(): array
     {
-        $defaultMethods = [Request::HTTP_METHOD_GET,
-                           Request::HTTP_METHOD_HEAD,
-                           Request::HTTP_METHOD_POST,
-                           Request::HTTP_METHOD_OPTIONS,
-                           Request::HTTP_METHOD_CONNECT,
-                           Request::HTTP_METHOD_TRACE,
-                           Request::HTTP_METHOD_PUT,
-                           Request::HTTP_METHOD_DELETE];
+        $defaultMethods = [
+            Request::HTTP_METHOD_GET,
+            Request::HTTP_METHOD_HEAD,
+            Request::HTTP_METHOD_POST,
+            Request::HTTP_METHOD_OPTIONS,
+            Request::HTTP_METHOD_CONNECT,
+            Request::HTTP_METHOD_TRACE,
+            Request::HTTP_METHOD_PUT,
+            Request::HTTP_METHOD_DELETE,
+        ];
 
         $methods = [];
         if (isset($this->options['method'])) {
             if (is_scalar($this->options['method'])) {
-                $methods = explode(',', (string) $this->options['method']);
+                $methods = explode(',', (string)$this->options['method']);
             } else {
-                $methods = (array) $this->options['method'];
+                $methods = (array)$this->options['method'];
             }
             $methods = array_map('mb_strtoupper', $methods);
             $methods = array_map('trim', $methods);
@@ -189,10 +214,10 @@ class Route implements RouteInterface, Serializable
         $parametersFound = [];
         foreach ($this->parameters as $parameter) {
             if (isset($parameters[$parameter->getName()])) {
-                $value = (string) $parameters[$parameter->getName()];
+                $value = (string)$parameters[$parameter->getName()];
             } else {
                 if ($parameter->hasDefaultValue()) {
-                    $value = (string) $parameter->getDefaultValue();
+                    $value = (string)$parameter->getDefaultValue();
                 } else {
                     return false;
                 }
@@ -216,8 +241,9 @@ class Route implements RouteInterface, Serializable
             array_walk_recursive(
                 $getParameters,
                 function (&$value) {
-                    $value = (string) $value;
-                });
+                    $value = (string)$value;
+                }
+            );
             $httpBuildQuery = http_build_query($getParameters);
 
             if (!empty($httpBuildQuery)) {
@@ -271,7 +297,8 @@ class Route implements RouteInterface, Serializable
                             return $match[0];
                         }
                     },
-                    $this->route) .
+                    $this->route
+                ) .
                 '$~i';
         }
 

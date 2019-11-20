@@ -26,6 +26,7 @@ class RouteTest extends TestCase
             [
                 'method' => 'get',
                 'name' => 'my-route',
+                'foo' => 'bar',
             ],
             ['controller' => 'TestTestController']
         );
@@ -73,9 +74,17 @@ class RouteTest extends TestCase
             [
                 'method' => 'get',
                 'name' => 'my-route',
+                'foo' => 'bar',
             ],
             $route->getOptions()
         );
+    }
+
+    public function testGetOption()
+    {
+        $route = $this->getValidRoute();
+        $this->assertEquals('bar', $route->getOption('foo'));
+        $this->assertEquals(false, $route->getOption('bar', false));
     }
 
     public function testGetContext()
