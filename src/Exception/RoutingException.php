@@ -14,6 +14,13 @@ declare(strict_types=1);
 
 namespace Berlioz\Router\Exception;
 
-class RoutingException extends \Exception
+use Exception;
+
+/**
+ * Class RoutingException.
+ *
+ * @package Berlioz\Router\Exception
+ */
+class RoutingException extends Exception
 {
 }

@@ -20,9 +20,9 @@ use Psr\Http\Message\UriInterface;
  * Class RouteSet.
  *
  * @package Berlioz\Router
- * @see     \Berlioz\Router\RouteSetInterface
+ * @see \Berlioz\Router\RouteSetInterface
  */
-class RouteSet implements RouteSetInterface, \Serializable
+class RouteSet implements RouteSetInterface
 {
     /** @var \Berlioz\Router\RouteInterface[] */
     private $routes;
@@ -83,13 +83,14 @@ class RouteSet implements RouteSetInterface, \Serializable
                 if (($a->getOptions()['priority'] ?? -1) == ($b->getOptions()['priority'] ?? -1)) {
                     if ($a->getNumberOfParameters() == $b->getNumberOfParameters()) {
                         return 0;
-                    } else {
-                        return ($a->getNumberOfParameters() < $b->getNumberOfParameters()) ? -1 : 1;
                     }
-                } else {
-                    return ($a->getOptions()['priority'] ?? -1) > ($b->getOptions()['priority'] ?? -1) ? -1 : 1;
+
+                    return ($a->getNumberOfParameters() < $b->getNumberOfParameters()) ? -1 : 1;
                 }
-            });
+
+                return ($a->getOptions()['priority'] ?? -1) > ($b->getOptions()['priority'] ?? -1) ? -1 : 1;
+            }
+        );
     }
 
     /**
@@ -123,10 +124,12 @@ class RouteSet implements RouteSetInterface, \Serializable
         }
 
         foreach ($this->routes as $route) {
-            if (empty($method) || in_array($method, $route->getMethods())) {
-                if ($route->test($httpPath)) {
-                    return $route;
-                }
+            if (!empty($method) && !in_array($method, $route->getMethods())) {
+                continue;
+            }
+
+            if ($route->test($httpPath)) {
+                return $route;
             }
         }
 

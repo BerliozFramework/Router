@@ -26,9 +26,9 @@ use Psr\Log\LoggerAwareTrait;
  * Class Router.
  *
  * @package Berlioz\Router
- * @see     \Berlioz\Router\RouterInterface
+ * @see \Berlioz\Router\RouterInterface
  */
-class Router implements RouterInterface, \Serializable
+class Router implements RouterInterface
 {
     use LoggerAwareTrait;
     /** @var \Berlioz\Router\RouteSetInterface Route set */
@@ -72,8 +72,8 @@ class Router implements RouterInterface, \Serializable
      */
     public function getRouteSet(): RouteSetInterface
     {
-        if (is_null($this->routeSet)) {
-            $this->routeSet = new RouteSet;
+        if (null === $this->routeSet) {
+            $this->routeSet = new RouteSet();
         }
 
         return $this->routeSet;
@@ -90,6 +90,43 @@ class Router implements RouterInterface, \Serializable
     }
 
     /**
+     * Get HTTP headers.
+     *
+     * @return array
+     */
+    private static function getHeaders(): array
+    {
+        // Get all headers
+        if (function_exists('\getallheaders')) {
+            return \getallheaders() ?: [];
+        }
+
+        $headers = [];
+
+        $serverVars = $_SERVER;
+        $serverVars['HTTP_CONTENT_TYPE'] = $serverVars['HTTP_CONTENT_TYPE'] ?? $serverVars['CONTENT_TYPE'] ?? null;
+        $serverVars['HTTP_CONTENT_LENGTH'] = $serverVars['HTTP_CONTENT_LENGTH'] ?? $serverVars['CONTENT_LENGTH'] ?? null;
+
+        foreach ($serverVars as $name => $value) {
+            if (substr($name, 0, 5) !== 'HTTP_') {
+                continue;
+            }
+
+            if (null === $value) {
+                continue;
+            }
+
+            $headers[str_replace(
+                ' ',
+                '-',
+                ucwords(strtolower(str_replace('_', ' ', substr($name, 5))))
+            )] = $value;
+        }
+
+        return $headers;
+    }
+
+    /**
      * Make server request.
      *
      * @return \Psr\Http\Message\ServerRequestInterface
@@ -99,12 +136,10 @@ class Router implements RouterInterface, \Serializable
         // HTTP Method
         if (!empty($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             $method = mb_strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+        } elseif (isset($_SERVER['REQUEST_METHOD'])) {
+            $method = mb_strtoupper($_SERVER['REQUEST_METHOD']);
         } else {
-            if (isset($_SERVER['REQUEST_METHOD'])) {
-                $method = mb_strtoupper($_SERVER['REQUEST_METHOD']);
-            } else {
-                $method = 'GET';
-            }
+            $method = 'GET';
         }
 
         // Path
@@ -116,50 +151,34 @@ class Router implements RouterInterface, \Serializable
         // Query string
         $queryString = $_SERVER['REDIRECT_QUERY_STRING'] ?? $_SERVER['QUERY_STRING'] ?? '';
 
-        // Headers
-        $headers = [];
-        // Get all headers
-        if (function_exists('\getallheaders')) {
-            $headers = \getallheaders() ?: [];
-        } else {
-            $serverVars = $_SERVER;
-            $serverVars['HTTP_CONTENT_TYPE'] = $serverVars['HTTP_CONTENT_TYPE'] ?? $serverVars['CONTENT_TYPE'] ?? null;
-            $serverVars['HTTP_CONTENT_LENGTH'] = $serverVars['HTTP_CONTENT_LENGTH'] ?? $serverVars['CONTENT_LENGTH'] ?? null;
-
-            foreach ($serverVars as $name => $value) {
-                if (substr($name, 0, 5) == 'HTTP_') {
-                    if (!is_null($value)) {
-                        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-                    }
-                }
-            }
-        }
-
         // Get stream
         $stream = fopen('php://temp', 'w+');
         stream_copy_to_stream(fopen('php://input', 'r'), $stream);
         rewind($stream);
+        $stream = new Stream($stream);
 
         // Request URI
-        $requestUri = new Uri($_SERVER['REQUEST_SCHEME'] ?? '',
-                              $_SERVER['HTTP_HOST'] ?? '',
-                              $_SERVER['SERVER_PORT'] ?? 80,
-                              $path,
-                              $queryString,
-                              '',
-                              $_SERVER['PHP_AUTH_USER'] ?? '',
-                              $_SERVER['PHP_AUTH_PW'] ?? '');
+        $requestUri = new Uri(
+            $_SERVER['REQUEST_SCHEME'] ?? '',
+            $_SERVER['HTTP_HOST'] ?? '',
+            $_SERVER['SERVER_PORT'] ?? 80,
+            $path,
+            $queryString,
+            '',
+            $_SERVER['PHP_AUTH_USER'] ?? '',
+            $_SERVER['PHP_AUTH_PW'] ?? ''
+        );
 
         // Server request
-        $serverRequest = new ServerRequest($method,
-                                           $requestUri,
-                                           $headers,
-                                           $_COOKIE,
-                                           $_SERVER,
-                                           new Stream($stream),
-                                           UploadedFile::parseUploadedFiles($_FILES));
-
-        return $serverRequest;
+        return new ServerRequest(
+            $method,
+            $requestUri,
+            static::getHeaders(),
+            $_COOKIE,
+            $_SERVER,
+            $stream,
+            UploadedFile::parseUploadedFiles($_FILES)
+        );
     }
 
     /**
@@ -167,7 +186,7 @@ class Router implements RouterInterface, \Serializable
      */
     public function getServerRequest(): ServerRequestInterface
     {
-        if (is_null($this->serverRequest)) {
+        if (null === $this->serverRequest) {
             $this->serverRequest = static::makeServerRequest();
         }
 
@@ -189,15 +208,11 @@ class Router implements RouterInterface, \Serializable
      */
     public function generate(string $name, array $parameters = [])
     {
-        if (!is_null($route = $this->getRouteSet()->getByName($name))) {
-            $routeGenerated = $route->generate($parameters);
-
-            if ($routeGenerated !== false) {
-                return $routeGenerated;
-            }
+        if (null === ($route = $this->getRouteSet()->getByName($name))) {
+            return false;
         }
 
-        return false;
+        return $route->generate($parameters);
     }
 
     /**
@@ -207,7 +222,7 @@ class Router implements RouterInterface, \Serializable
     {
         $uri = Uri::createFromString($path);
 
-        return !is_null($this->getRouteSet()->searchRoute($uri, $method));
+        return null !== ($this->getRouteSet()->searchRoute($uri, $method));
     }
 
     /**
@@ -219,30 +234,31 @@ class Router implements RouterInterface, \Serializable
         $this->log('debug', sprintf('%s', __METHOD__));
 
         // Server request
-        if (is_null($serverRequest)) {
+        if (null === $serverRequest) {
             $serverRequest = $this->getServerRequest();
 
             // Log
             $this->log('debug', sprintf('%s / ServerRequest created', __METHOD__));
         }
 
-        /** @var \Berlioz\Router\RouteInterface $route */
-        if (!is_null($route = $this->getRouteSet()->searchRoute($serverRequest->getUri(), $serverRequest->getMethod()))) {
-            // Log
-            $this->log('debug', sprintf('%s / Route found', __METHOD__));
-
-            // Attributes
-            foreach ($route->extractAttributes($serverRequest->getUri()->getPath()) as $name => $value) {
-                $serverRequest = $serverRequest->withAttribute($name, $value);
-            }
-            $this->setServerRequest($serverRequest);
-
-            // Log
-            $this->log('debug', sprintf('%s / ServerRequest completed', __METHOD__));
-
-            return $route;
+        $route = $this->getRouteSet()->searchRoute($serverRequest->getUri(), $serverRequest->getMethod());
+        if (null === $route) {
+            return null;
         }
 
-        return null;
+        // Log
+        $this->log('debug', sprintf('%s / Route found', __METHOD__));
+
+        // Attributes
+        foreach ($route->extractAttributes($serverRequest->getUri()->getPath()) as $name => $value) {
+            $serverRequest = $serverRequest->withAttribute($name, $value);
+        }
+
+        $this->setServerRequest($serverRequest);
+
+        // Log
+        $this->log('debug', sprintf('%s / ServerRequest completed', __METHOD__));
+
+        return $route;
     }
 }

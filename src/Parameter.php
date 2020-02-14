@@ -14,6 +14,11 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+/**
+ * Class Parameter.
+ *
+ * @package Berlioz\Router
+ */
 class Parameter
 {
     /** @var string Name of parameter */
@@ -26,7 +31,7 @@ class Parameter
     /**
      * Parameter constructor.
      *
-     * @param string      $name
+     * @param string $name
      * @param string|null $defaultValue
      * @param string|null $regexValidation
      */
@@ -42,9 +47,13 @@ class Parameter
      */
     public function serialize(): string
     {
-        return serialize(['name'            => $this->name,
-                          'defaultValue'    => $this->defaultValue,
-                          'regexValidation' => $this->regexValidation]);
+        return serialize(
+            [
+                'name' => $this->name,
+                'defaultValue' => $this->defaultValue,
+                'regexValidation' => $this->regexValidation
+            ]
+        );
     }
 
     /**

@@ -14,7 +14,14 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
-interface RouteInterface
+use Serializable;
+
+/**
+ * Interface RouteInterface.
+ *
+ * @package Berlioz\Router
+ */
+interface RouteInterface extends Serializable
 {
     /**
      * Get name.

@@ -15,8 +15,14 @@ declare(strict_types=1);
 namespace Berlioz\Router;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Serializable;
 
-interface RouterInterface
+/**
+ * Interface RouterInterface.
+ *
+ * @package Berlioz\Router
+ */
+interface RouterInterface extends Serializable
 {
     /**
      * Get route set.
@@ -58,7 +64,7 @@ interface RouterInterface
      *
      * Check if a route is associate to the given path and HTTP method.
      *
-     * @param string $path   Path to test
+     * @param string $path Path to test
      * @param string $method Http method
      *
      * @return bool
@@ -70,8 +76,8 @@ interface RouterInterface
      *
      * Must return path route with given name of route and associated parameters.
      *
-     * @param string $name       Name of route
-     * @param array  $parameters Parameters for route
+     * @param string $name Name of route
+     * @param array $parameters Parameters for route
      *
      * @return string|false
      */

@@ -16,12 +16,18 @@ namespace Berlioz\Router;
 
 use Berlioz\Http\Message\Request;
 use Berlioz\Router\Exception\RoutingException;
-use Serializable;
+
 use const ARRAY_FILTER_USE_KEY;
 
-class Route implements RouteInterface, Serializable
+/**
+ * Class Route.
+ *
+ * @package Berlioz\Router
+ * @see \Berlioz\Router\RouteInterface
+ */
+class Route implements RouteInterface
 {
-    const REGEX_PARAMETER = '/{(?<name>[\w_]+)}/';
+    protected const REGEX_PARAMETER = '/{(?<name>[\w_]+)}/';
     /** @var string Route */
     private $route;
     /** @var string[][] Route options */
@@ -105,9 +111,9 @@ class Route implements RouteInterface, Serializable
     {
         if (!empty($this->options['name']) && is_string($this->options['name'])) {
             return (string)$this->options['name'];
-        } else {
-            return spl_object_hash($this);
         }
+
+        return spl_object_hash($this);
     }
 
     /**
@@ -183,9 +189,9 @@ class Route implements RouteInterface, Serializable
 
         if (empty($methods)) {
             return $defaultMethods;
-        } else {
-            return $methods;
         }
+
+        return $methods;
     }
 
     /**
@@ -216,11 +222,11 @@ class Route implements RouteInterface, Serializable
             if (isset($parameters[$parameter->getName()])) {
                 $value = (string)$parameters[$parameter->getName()];
             } else {
-                if ($parameter->hasDefaultValue()) {
-                    $value = (string)$parameter->getDefaultValue();
-                } else {
+                if (!$parameter->hasDefaultValue()) {
                     return false;
                 }
+
+                $value = (string)$parameter->getDefaultValue();
             }
 
             $route = str_replace('{' . $parameter->getName() . '}', $value, $route);
@@ -262,11 +268,11 @@ class Route implements RouteInterface, Serializable
         $matches = [];
         $path = urldecode($path);
 
-        if (preg_match($this->getRouteRegex(), $path, $matches) == 1) {
-            return array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-        } else {
+        if (preg_match($this->getRouteRegex(), $path, $matches) !== 1) {
             throw new RoutingException(sprintf('Given path "%s" isn\'t valid for Route "%s"', $path, $this->getName()));
         }
+
+        return array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
     }
 
     /**
@@ -284,23 +290,26 @@ class Route implements RouteInterface, Serializable
      */
     public function getRouteRegex(): string
     {
-        if (is_null($this->route_regex)) {
-            $route = $this;
-            $this->route_regex =
-                '~^' .
-                preg_replace_callback(
-                    self::REGEX_PARAMETER,
-                    function ($match) use ($route) {
-                        if (isset($route->parameters[$match['name']])) {
-                            return '(?<' . $match['name'] . '>' . $parameter = $route->parameters[$match['name']]->getRegexValidation() . ')';
-                        } else {
-                            return $match[0];
-                        }
-                    },
-                    $this->route
-                ) .
-                '$~i';
+        if (null !== $this->route_regex) {
+            return $this->route_regex;
         }
+
+        $route = $this;
+        $this->route_regex =
+            '~^' .
+            preg_replace_callback(
+                self::REGEX_PARAMETER,
+                function ($match) use ($route) {
+                    if (isset($route->parameters[$match['name']])) {
+                        return '(?<' . $match['name'] . '>' . $parameter = $route->parameters[$match['name']]->getRegexValidation(
+                                ) . ')';
+                    }
+
+                    return $match[0];
+                },
+                $this->route
+            ) .
+            '$~i';
 
         return $this->route_regex;
     }
@@ -314,18 +323,17 @@ class Route implements RouteInterface, Serializable
      */
     private function filterParameters(array $params): array
     {
-        return
-            array_filter(
-                $params,
-                function (&$value) {
-                    if (is_array($value)) {
-                        $value = $this->filterParameters($value);
+        return array_filter(
+            $params,
+            function (&$value) {
+                if (is_array($value)) {
+                    $value = $this->filterParameters($value);
 
-                        return count($value) > 0;
-                    } else {
-                        return !is_null($value);
-                    }
+                    return count($value) > 0;
                 }
-            );
+
+                return !is_null($value);
+            }
+        );
     }
 }

@@ -14,14 +14,16 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Countable;
 use Psr\Http\Message\UriInterface;
+use Serializable;
 
 /**
  * Interface RouteSetInterface
  *
  * @package Berlioz\Router
  */
-interface RouteSetInterface extends \Countable
+interface RouteSetInterface extends Countable, Serializable
 {
     /**
      * Add new route.
@@ -61,8 +63,8 @@ interface RouteSetInterface extends \Countable
     /**
      * Search route for given uri and method.
      *
-     * @param \Psr\Http\Message\UriInterface $uri    Uri
-     * @param string|null                    $method Http method
+     * @param \Psr\Http\Message\UriInterface $uri Uri
+     * @param string|null $method Http method
      *
      * @return \Berlioz\Router\RouteInterface|null
      */
