@@ -16,7 +16,7 @@ namespace Berlioz\Router;
 
 use Berlioz\Http\Message\Request;
 use Berlioz\Http\Message\ServerRequest;
-use Berlioz\Http\Message\Stream;
+use Berlioz\Http\Message\Stream\PhpInputStream;
 use Berlioz\Http\Message\UploadedFile;
 use Berlioz\Http\Message\Uri;
 use Psr\Http\Message\ServerRequestInterface;
@@ -151,12 +151,6 @@ class Router implements RouterInterface
         // Query string
         $queryString = $_SERVER['REDIRECT_QUERY_STRING'] ?? $_SERVER['QUERY_STRING'] ?? '';
 
-        // Get stream
-        $stream = fopen('php://temp', 'w+');
-        stream_copy_to_stream(fopen('php://input', 'r'), $stream);
-        rewind($stream);
-        $stream = new Stream($stream);
-
         // Request URI
         $requestUri = new Uri(
             $_SERVER['REQUEST_SCHEME'] ?? '',
@@ -176,7 +170,7 @@ class Router implements RouterInterface
             static::getHeaders(),
             $_COOKIE,
             $_SERVER,
-            $stream,
+            new PhpInputStream(),
             UploadedFile::parseUploadedFiles($_FILES)
         );
     }
