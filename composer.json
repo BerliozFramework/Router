@@ -1,6 +1,6 @@
 {
   "name": "berlioz/router",
-  "description": "Berlioz Router",
+  "description": "Berlioz Router is a PHP library for manage HTTP routes, respecting PSR-7 (HTTP message interfaces) standard.",
   "minimum-stability": "stable",
   "license": "MIT",
   "homepage": "https://getberlioz.com",
