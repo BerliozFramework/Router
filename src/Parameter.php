@@ -14,12 +14,14 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Serializable;
+
 /**
  * Class Parameter.
  *
  * @package Berlioz\Router
  */
-class Parameter
+class Parameter implements Serializable
 {
     /** @var string Name of parameter */
     private $name;
