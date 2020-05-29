@@ -30,7 +30,7 @@
     "psr/log": "^1.0"
   },
   "suggest": {
-    "ext-apache": "*"
+    "ext-apache": "To get HTTP headers with Apache Web Server"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.4 || ^8.0 || ^9.0"
