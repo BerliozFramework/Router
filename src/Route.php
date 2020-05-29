@@ -36,7 +36,7 @@ class Route implements RouteInterface
     private $route_regex;
     /** @var array Context */
     private $context;
-    /** @var \Berlioz\Router\Parameter[] Parameters */
+    /** @var Parameter[] Parameters */
     private $parameters;
 
     /**
@@ -46,7 +46,7 @@ class Route implements RouteInterface
      * @param array $options
      * @param array $context
      *
-     * @throws \Berlioz\Router\Exception\RoutingException
+     * @throws RoutingException
      */
     public function __construct(string $route, array $options = [], array $context = [])
     {
@@ -301,8 +301,12 @@ class Route implements RouteInterface
                 self::REGEX_PARAMETER,
                 function ($match) use ($route) {
                     if (isset($route->parameters[$match['name']])) {
-                        return '(?<' . $match['name'] . '>' . $parameter = $route->parameters[$match['name']]->getRegexValidation(
-                                ) . ')';
+                        return
+                            '(?<' .
+                            $match['name'] .
+                            '>' .
+                            $route->parameters[$match['name']]->getRegexValidation() .
+                            ')';
                     }
 
                     return $match[0];
@@ -332,7 +336,7 @@ class Route implements RouteInterface
                     return count($value) > 0;
                 }
 
-                return !is_null($value);
+                return null !== $value;
             }
         );
     }

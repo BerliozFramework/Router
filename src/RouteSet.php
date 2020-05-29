@@ -24,7 +24,7 @@ use Psr\Http\Message\UriInterface;
  */
 class RouteSet implements RouteSetInterface
 {
-    /** @var \Berlioz\Router\RouteInterface[] */
+    /** @var RouteInterface[] */
     private $routes;
 
     /**

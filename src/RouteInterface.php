@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Berlioz\Router\Exception\RoutingException;
 use Serializable;
 
 /**
@@ -82,7 +83,7 @@ interface RouteInterface extends Serializable
      * @param string $path Path
      *
      * @return array
-     * @throws \Berlioz\Router\Exception\RoutingException If given path do not contain all attributes or no defaults
+     * @throws RoutingException If given path do not contain all attributes or no defaults
      *                                                    values available.
      */
     public function extractAttributes(string $path): array;

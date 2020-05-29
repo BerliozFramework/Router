@@ -15,9 +15,11 @@ declare(strict_types=1);
 namespace Berlioz\Router;
 
 use Berlioz\PhpDoc\DocBlock;
+use Berlioz\PhpDoc\DocBlock\AbstractFunctionDocBlock;
 use Berlioz\PhpDoc\Exception\PhpDocException;
 use Berlioz\PhpDoc\PhpDocFactory;
 use Berlioz\Router\Exception\RoutingException;
+use Psr\SimpleCache\CacheException;
 
 /**
  * Class RouteGenerator.
@@ -26,13 +28,13 @@ use Berlioz\Router\Exception\RoutingException;
  */
 class RouteGenerator
 {
-    /** @var \Berlioz\PhpDoc\PhpDocFactory */
+    /** @var PhpDocFactory */
     private $phpDocFactory;
 
     /**
      * RouteGenerator constructor.
      *
-     * @param \Berlioz\PhpDoc\PhpDocFactory|null $phpDocFactory
+     * @param PhpDocFactory|null $phpDocFactory
      */
     public function __construct(?PhpDocFactory $phpDocFactory = null)
     {
@@ -42,7 +44,7 @@ class RouteGenerator
     /**
      * Get PhpDocFactory object to read phpDoc.
      *
-     * @return \Berlioz\PhpDoc\PhpDocFactory
+     * @return PhpDocFactory
      */
     public function getPhpDocFactory(): PhpDocFactory
     {
@@ -60,9 +62,9 @@ class RouteGenerator
      * @param string $basePath
      * @param array $context
      *
-     * @return \Berlioz\Router\RouteSetInterface
-     * @throws \Berlioz\Router\Exception\RoutingException
-     * @throws \Psr\SimpleCache\CacheException
+     * @return RouteSetInterface
+     * @throws RoutingException
+     * @throws CacheException
      */
     public function fromClass(string $class, string $basePath = '', array $context = []): RouteSetInterface
     {
@@ -115,16 +117,16 @@ class RouteGenerator
     /**
      * Generate routes from DocBlock objects.
      *
-     * @param \Berlioz\PhpDoc\DocBlock\AbstractFunctionDocBlock $docBlock
-     * @param \Berlioz\PhpDoc\DocBlock|null $baseDocBlock
+     * @param AbstractFunctionDocBlock $docBlock
+     * @param DocBlock|null $baseDocBlock
      * @param string $basePath
      * @param array $context
      *
-     * @return \Berlioz\Router\RouteSetInterface
-     * @throws \Berlioz\Router\Exception\RoutingException
+     * @return RouteSetInterface
+     * @throws RoutingException
      */
     protected function fromDocBlock(
-        DocBlock\AbstractFunctionDocBlock $docBlock,
+        AbstractFunctionDocBlock $docBlock,
         ?DocBlock $baseDocBlock = null,
         string $basePath = '',
         array $context = []

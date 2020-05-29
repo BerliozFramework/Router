@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
 use Serializable;
 
@@ -27,14 +28,14 @@ interface RouterInterface extends Serializable
     /**
      * Get route set.
      *
-     * @return \Berlioz\Router\RouteSetInterface
+     * @return RouteSetInterface
      */
     public function getRouteSet(): RouteSetInterface;
 
     /**
      * Set route set.
      *
-     * @param \Berlioz\Router\RouteSetInterface $routeSet
+     * @param RouteSetInterface $routeSet
      *
      * @return static
      */
@@ -46,16 +47,16 @@ interface RouterInterface extends Serializable
      * Can called after RouterInterface::handle() method.
      * Return the ServerRequest object of current request.
      *
-     * @return \Psr\Http\Message\ServerRequestInterface
+     * @return ServerRequestInterface
      */
     public function getServerRequest(): ServerRequestInterface;
 
     /**
      * Set server request.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
+     * @param ServerRequestInterface $serverRequest
      *
-     * @return \Berlioz\Router\RouterInterface
+     * @return RouterInterface
      */
     public function setServerRequest(ServerRequestInterface $serverRequest): RouterInterface;
 
@@ -86,10 +87,10 @@ interface RouterInterface extends Serializable
     /**
      * Handle.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface|null $serverRequest Server request
+     * @param ServerRequestInterface|null $serverRequest Server request
      *
-     * @return \Berlioz\Router\RouteInterface|null
-     * @throws \Berlioz\Router\Exception\RoutingException
+     * @return RouteInterface|null
+     * @throws RoutingException
      */
     public function handle(?ServerRequestInterface &$serverRequest = null): ?RouteInterface;
 }

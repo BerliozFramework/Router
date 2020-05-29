@@ -35,4 +35,8 @@ class ControllerTest
     public function methodTest3()
     {
     }
+
+    public function method()
+    {
+    }
 }

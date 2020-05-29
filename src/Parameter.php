@@ -87,7 +87,7 @@ class Parameter implements Serializable
      */
     public function hasDefaultValue(): bool
     {
-        return !is_null($this->defaultValue);
+        return null !== $this->defaultValue;
     }
 
     /**

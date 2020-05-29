@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Berlioz\Router\Exception\RoutingException;
 use Countable;
 use Psr\Http\Message\UriInterface;
 use Serializable;
@@ -28,26 +29,26 @@ interface RouteSetInterface extends Countable, Serializable
     /**
      * Add new route.
      *
-     * @param \Berlioz\Router\RouteInterface $route Route to add
+     * @param RouteInterface $route Route to add
      *
-     * @return \Berlioz\Router\RouteSetInterface
-     * @throws \Berlioz\Router\Exception\RoutingException If route already exists
+     * @return RouteSetInterface
+     * @throws RoutingException If route already exists
      */
     public function addRoute(RouteInterface $route): RouteSetInterface;
 
     /**
      * Get routes.
      *
-     * @return \Berlioz\Router\RouteInterface[]
+     * @return RouteInterface[]
      */
     public function getRoutes(): array;
 
     /**
      * Merge route set with another.
      *
-     * @param \Berlioz\Router\RouteSetInterface $routeSet
+     * @param RouteSetInterface $routeSet
      *
-     * @return \Berlioz\Router\RouteSetInterface
+     * @return RouteSetInterface
      */
     public function merge(RouteSetInterface $routeSet): RouteSetInterface;
 
@@ -56,17 +57,17 @@ interface RouteSetInterface extends Countable, Serializable
      *
      * @param string $name Name of route
      *
-     * @return \Berlioz\Router\RouteInterface|null
+     * @return RouteInterface|null
      */
     public function getByName($name): ?RouteInterface;
 
     /**
      * Search route for given uri and method.
      *
-     * @param \Psr\Http\Message\UriInterface $uri Uri
+     * @param UriInterface $uri Uri
      * @param string|null $method Http method
      *
-     * @return \Berlioz\Router\RouteInterface|null
+     * @return RouteInterface|null
      */
     public function searchRoute(UriInterface $uri, string $method = null): ?RouteInterface;
 }

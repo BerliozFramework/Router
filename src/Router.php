@@ -22,6 +22,8 @@ use Berlioz\Http\Message\Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 
+use function getallheaders;
+
 /**
  * Class Router.
  *
@@ -31,9 +33,10 @@ use Psr\Log\LoggerAwareTrait;
 class Router implements RouterInterface
 {
     use LoggerAwareTrait;
-    /** @var \Berlioz\Router\RouteSetInterface Route set */
+
+    /** @var RouteSetInterface Route set */
     private $routeSet;
-    /** @var \Psr\Http\Message\ServerRequestInterface Server request */
+    /** @var ServerRequestInterface Server request */
     private $serverRequest;
 
     /**
@@ -98,7 +101,7 @@ class Router implements RouterInterface
     {
         // Get all headers
         if (function_exists('\getallheaders')) {
-            return \getallheaders() ?: [];
+            return getallheaders() ?: [];
         }
 
         $headers = [];
@@ -129,7 +132,7 @@ class Router implements RouterInterface
     /**
      * Make server request.
      *
-     * @return \Psr\Http\Message\ServerRequestInterface
+     * @return ServerRequestInterface
      */
     public static function makeServerRequest(): ServerRequestInterface
     {
