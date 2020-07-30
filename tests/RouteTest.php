@@ -229,7 +229,7 @@ class RouteTest extends TestCase
                 'test' => 'value1',
                 'test2' => 'value2',
             ],
-            $route->extractAttributes('/my-path/value1/value2?foo%5B0%5D=bar&foo%5B1%5D=baz&foo%5B2%5D=&foo%5B3%5D=0&qux=')
+            $route->extractAttributes('/my-path/value1/value2')
         );
     }
 
