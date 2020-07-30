@@ -203,6 +203,24 @@ class RouteTest extends TestCase
         $this->assertTrue($route->test($route->generate(['test' => urlencode('foo/bar'), 'test2' => 'value2'])));
     }
 
+    public function testGenerateWithMultidimensionalParameters()
+    {
+        $route = $this->getValidRoute();
+        $parameters = [
+            'foo' => ['bar', 'baz', '', null, 0],
+            'qux' => '',
+            'quxx' => null,
+            'test' => 'value1',
+            'test2' => 'value2'
+        ];
+
+        $this->assertEquals(
+            '/my-path/value1/value2?foo%5B0%5D=bar&foo%5B1%5D=baz&foo%5B2%5D=&foo%5B4%5D=0&qux=',
+            $route->generate($parameters)
+        );
+        $this->assertTrue($route->test($route->generate($parameters)));
+    }
+
     public function testExtractAttributes()
     {
         $route = $this->getValidRoute();
@@ -211,7 +229,7 @@ class RouteTest extends TestCase
                 'test' => 'value1',
                 'test2' => 'value2',
             ],
-            $route->extractAttributes('/my-path/value1/value2')
+            $route->extractAttributes('/my-path/value1/value2?foo%5B0%5D=bar&foo%5B1%5D=baz&foo%5B2%5D=&foo%5B3%5D=0&qux=')
         );
     }
 

@@ -327,16 +327,30 @@ class Route implements RouteInterface
      */
     private function filterParameters(array $params): array
     {
+        array_walk(
+            $params,
+            function (&$param) {
+                if (is_array($param)) {
+                    $param = $this->filterParameters($param);
+
+                    $param = array_filter(
+                        $param,
+                        function ($value) {
+                            return $value !== null;
+                        }
+                    );
+                }
+            }
+        );
+
         return array_filter(
             $params,
-            function (&$value) {
+            function ($value) {
                 if (is_array($value)) {
-                    $value = $this->filterParameters($value);
-
                     return count($value) > 0;
                 }
 
-                return null !== $value;
+                return $value !== null;
             }
         );
     }
