@@ -20,7 +20,7 @@ $ composer require berlioz/router
 
 ### Dependencies
 
-* **PHP** >= 7.1
+* **PHP** ^7.1 || ^8.0
 * Packages:
   * **berlioz/http-message**
   * **berlioz/php-doc**
