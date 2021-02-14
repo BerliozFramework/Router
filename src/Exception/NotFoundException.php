@@ -10,8 +10,15 @@
  * file that was distributed with this source code, to the root.
  */
 
-$file = __DIR__ . '/../vendor/autoload.php';
-if (!file_exists($file)) {
-    throw new RuntimeException('Install dependencies using composer to run the test suite.');
+declare(strict_types=1);
+
+namespace Berlioz\Router\Exception;
+
+/**
+ * Class NotFoundException.
+ *
+ * @package Berlioz\Router\Exception
+ */
+class NotFoundException extends RoutingException
+{
 }
-$autoload = require_once $file;

@@ -22,17 +22,12 @@
     }
   },
   "require": {
-    "php": "^7.1 || ^8.0",
-    "ext-mbstring": "*",
-    "ext-json": "*",
-    "berlioz/http-message": "^1.1",
-    "berlioz/php-doc": "^1.0",
+    "php": "^8.0",
+    "psr/http-message": "^1.0",
     "psr/log": "^1.0"
   },
-  "suggest": {
-    "ext-apache": "To get HTTP headers with Apache Web Server"
-  },
   "require-dev": {
-    "phpunit/phpunit": "^7.4 || ^8.0 || ^9.0"
+    "phpunit/phpunit": "^9.3",
+    "berlioz/http-message": "^1.1"
   }
 }

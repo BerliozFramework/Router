@@ -1,15 +1,48 @@
 # Change Log
-All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning] (http://semver.org/).
-For change log format, use [Keep a Changelog] (http://keepachangelog.com/).
+
+All notable changes to this project will be documented in this file. This project adheres
+to [Semantic Versioning] (http://semver.org/). For change log format,
+use [Keep a Changelog] (http://keepachangelog.com/).
+
+## [2.0.0-alpha1]
+
+### Added
+
+- Allow routes with same name
+- Allow declaration of attribute type in path
+- Allow optional part in path
+- Route can be a group of routes with inheritance of attributes
+- Used of \Generator class
+- New Attribute object to manage attributes in routes
+- Dependency with `psr/http-message` library
+- Compilation concept to generate regex when necessary or before serialization of Route object
+
+### Changed
+
+- Refactoring
+- Bump compatibility to PHP 8 minimum
+- Route object can be a group of routes
+
+### Removed
+
+- Remove RouteGenerator class
+- Remove dependency with `berlioz/php-doc` library
+- Remove dependency with `berlioz/http-message` library
+- Remove dependency with `mbstring` extension
+- Remove RouteSet class
 
 ## [1.1.0] - 2020-11-05
+
 ### Added
+
 - PHP 8 compatibility
 
 ## [1.0.1] - 2020-07-30
+
 ### Changed
+
 - Method Route::filterParameters() with multidimensional parameters array fixed
 
 ## [1.0.0] - 2020-05-29
+
 First version

@@ -20,72 +20,97 @@ $ composer require berlioz/router
 
 ### Dependencies
 
-* **PHP** ^7.1 || ^8.0
+* **PHP** ^8.0
 * Packages:
-  * **berlioz/http-message**
-  * **berlioz/php-doc**
-  * **psr/log**
-
+    * **berlioz/http-message**
+    * **psr/log**
 
 ## Usage
 
-### Create route
+### Routes
+
+#### Create route
 
 You can create simple route like this:
+
 ```php
+use Berlioz\Router\Route;
+
 $route = new Route('/path-of/my-route');
 $route = new Route('/path-of/my-route/{attribute}/with-attribute');
 ```
 
-Second parameter of constructor is an array of options.
-All available options are:
-* **requirements**: associated array to restrict format of attributes. Key is the name of attribute and value is the validation regex.
-* **defaults**: associated array to set default values of attributes when route is generated.
-* **priority**: you can specify the priority for a route (default: -1).
+Constructor arguments are:
 
-### Associate routes to a route set
+- **defaults**: an associated array to set default values of attributes when route is generated
+- **requirements**: an associated array to restrict the format of attributes. Key is the name of attribute and value is
+  the validation regex
+- **name**: name of route
+- **method**: an array of allowed HTTP methods, or just a method
+- **host**: an array of allowed hosts, or just a host
+- **priority**: you can specify the priority for a route (default: -1)
 
-Route set is managed by class `RouteSet` class:
+#### Route group
+
+A route can be transformed to a group, only associate another route to them.
+
 ```php
-$routeSet = new RouteSet;
-$routeSet->addRoute(new Route('/path/of/my/route'));
+use Berlioz\Router\Route;
+
+$route = new Route('/path');
+$route->addRoute($route2 = new Route('/path2')); // Path will be: /path/path2
 ```
 
-You can also merge two route set together:
+Children routes inherit parent route attributes, requirements, ...
+
+#### Attributes
+
+Route accept optional attributes, you need to wrap the optional part by brackets.
+
 ```php
-$routeSet = new RouteSet;
-$routeSet->addRoute(new Route('/path/of/my/route'));
-
-$secondRouteSet = new RouteSet;
-$secondRouteSet->addRoute(new Route('/path/of/my/second/route'));
-
-$routeSet->merge($secondRouteSet);
+$route = new \Berlioz\Router\Route('/path[/optional-part/{with-attribute}]');
 ```
 
-### Uses router
+You can also define requirements directly in the path :
 
-The router is the main functionality in the package, it is defined by `Router` class.
-He is able to find the good `Route` object according to a `ServerRequestInterface` object (see PSR-7).
+- Add a regular expression after the name of attribute (separate by ":").
+- Add a type name after the name of attribute (separate by "::").
 
 ```php
+$route = new \Berlioz\Router\Route('/path/{attributeName:\d+}');
+$route = new \Berlioz\Router\Route('/path/{attributeName::int}');
+```
+
+Supported defined types:
+
+- `int` (equivalent of `\d+`)
+- `float` (equivalent of `\d+(\.\d+)`)
+- `uuid` (equivalent of `[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}`)
+- `md5` (equivalent of `[0-9a-fA-F]{32}`)
+- `sha1` (equivalent of `[0-9a-fA-F]{40}`)
+- `domain` (equivalent of `([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}`)
+
+### Router
+
+The router is the main functionality in the package, it is defined by `Router` class. He is able to find the
+good `Route` object according to a `ServerRequestInterface` object (see PSR-7).
+
+```php
+use Berlioz\Http\Message\ServerRequest;
+use Berlioz\Router\Route;
+use Berlioz\Router\Router;
+
 // Create server request or get them from another place in your app
 $serverRequest = new ServerRequest(...);
 
-// Create route set
-$routeSet = new RouteSet;
-$routeSet->addRoute(new Route('/path-of/my-route'));
-$routeSet->addRoute(new Route('/path-of/my-route/{attribute}/with-attribute'));
+// Create router
+$router = new Router();
+$router->addRoute(
+    new Route('/path-of/my-route'),
+    new Route('/path-of/my-route/{attribute}/with-attribute')
+);
 
-$router = new Router;
-$router->setRouteSet($routeSet);
 $route = $router->handle($serverRequest);
-```
-
-You can retrieve extracted attributes of path in `ServerRequestInterface` object stored in `Router` object:
-
-```php
-/** array $attributes Associated array with key/value pairs */ 
-$attributes = $router->getServerRequest()->getAttributes();
 ```
 
 #### Generate path
@@ -93,60 +118,36 @@ $attributes = $router->getServerRequest()->getAttributes();
 You can generate a path with some parameters directly with `Router` object.
 
 ```php
-$router = new Router;
-...
-/** string|false $path Generated path */
-$path = $router->generate('name-of-route', ['attribute1' => 'value']);
-```
+use Berlioz\Router\Exception\NotFoundException;
+use Berlioz\Router\Router;
 
-The return of method, is the path in string format or `false` value if not able to generate path (not all required parameters for example).
+$router = new Router();
+// ...add routes
 
-#### Valid path
-
-You can valid a path to known if a path can be treated by a route.
-
-```php
-$router = new Router;
-...
-/** bool $valid Valid path ?*/
-$valid = $router->isValid('/my-path/path/file');
-```
-
-The return of method is a `boolean` value.
-
-### Parse routes from controllers or classes
-
-You can parse routes from your controllers with PhpDoc annotations.
-
-#### Example of PhpDoc
-
-```php
-class Controller
-{
-    /**
-     * My controller method.
-     *
-     * @route("/path/{attribute}/path", name="method")
-     */
-    public function myMethod()
-    {
-        ...
-    }
+try {
+    $path = $router->generate('name-of-route', ['attribute1' => 'value']);
+} catch (NotFoundException $exception) {
+    // ... not found route
 }
 ```
 
-Like you see, it's possible to add options to the annotation, like *name* in example.
-Options need to be separated by comma and the value must be a quoted string or a valid JSON format.
-All options accepted by `Route` object are available here.
+The return of method, is the path in string format or thrown an exception if not able to generate path (not all required
+parameters for example).
 
-#### How to generate route set from class
+#### Valid path
 
-A `RouteGenerator` class is available to generate routes from classes.
+You can be valid a `ServerRequestInterface` to known if a path can be treated by a route.
 
 ```php
-$generator = new RouteGenerator;
-$routeSet = $generator->fromClass(Controller::class);
+use Berlioz\Http\Message\ServerRequest;
+use Berlioz\Router\Router;
 
-$router = new Router;
-$router->addRouteSet($routeSet);
+$serverRequest = new ServerRequest(...);
+$router = new Router();
+// ...add routes
+
+/** bool $valid Valid path ?*/
+$valid = $router->isValid($serverRequest);
 ```
+
+The return of method is a `boolean` value.

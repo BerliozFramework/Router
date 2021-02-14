@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * This file is part of Berlioz framework.
  *
  * @license   https://opensource.org/licenses/MIT MIT License
- * @copyright 2017 Ronan GIRON
+ * @copyright 2020 Ronan GIRON
  * @author    Ronan GIRON <https://github.com/ElGigi>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -15,21 +15,58 @@ declare(strict_types=1);
 namespace Berlioz\Router;
 
 use Berlioz\Router\Exception\RoutingException;
-use Serializable;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Interface RouteInterface.
  *
  * @package Berlioz\Router
  */
-interface RouteInterface extends Serializable
+interface RouteInterface extends RouteSetInterface
 {
     /**
      * Get name.
      *
+     * @return string|null
+     */
+    public function getName(): ?string;
+
+    /**
+     * Get path.
+     *
      * @return string
      */
-    public function getName(): string;
+    public function getPath(): string;
+
+    /**
+     * Get attribute.
+     *
+     * @param string $name
+     *
+     * @return Attribute|null
+     */
+    public function getAttribute(string $name): ?Attribute;
+
+    /**
+     * Get methods.
+     *
+     * @return array
+     */
+    public function getMethods(): array;
+
+    /**
+     * Get hosts.
+     *
+     * @return array|null
+     */
+    public function getHosts(): ?array;
+
+    /**
+     * Get priority.
+     *
+     * @return int
+     */
+    public function getPriority(): int;
 
     /**
      * Get options.
@@ -39,68 +76,70 @@ interface RouteInterface extends Serializable
     public function getOptions(): array;
 
     /**
-     * Get context.
+     * Get option.
      *
-     * @return array
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
      */
-    public function getContext(): array;
+    public function getOption(string $name, mixed $default = null): mixed;
 
     /**
      * Get context.
      *
-     * @param array $context
+     * @return mixed
+     */
+    public function getContext(): mixed;
+
+    /**
+     * Set context.
+     *
+     * @param mixed $context
      *
      * @return static
      */
-    public function setContext(array $context): RouteInterface;
+    public function setContext(mixed $context): static;
 
     /**
-     * Get methods.
-     *
-     * @return string[]
-     */
-    public function getMethods(): array;
-
-    /**
-     * Get route.
-     *
-     * @return string|null
-     */
-    public function getRoute(): string;
-
-    /**
-     * Test route with path.
-     *
-     * @param string $test Path to test
+     * Is group?
      *
      * @return bool
      */
-    public function test(string $test): bool;
+    public function isGroup(): bool;
 
     /**
-     * Extract attributes from path.
+     * Set parent.
      *
-     * @param string $path Path
+     * @param Route $parent
      *
-     * @return array
-     * @throws RoutingException If given path do not contain all attributes or no defaults
-     *                                                    values available.
+     * @return static
      */
-    public function extractAttributes(string $path): array;
+    public function setParent(Route $parent): static;
 
     /**
-     * Generate route with parameters.
+     * Test server request.
+     *
+     * @param ServerRequestInterface $request
+     * @param array $attributes
+     *
+     * @return bool
+     */
+    public function test(ServerRequestInterface $request, array &$attributes = []): bool;
+
+    /**
+     * Generate route.
      *
      * @param array $parameters Parameters
+     * @param int $nbUsed
      *
-     * @return string|false
+     * @return string
+     * @throws RoutingException
      */
-    public function generate(array $parameters);
+    public function generate(array $parameters = [], int &$nbUsed = 0): string;
 
     /**
-     * Get number of parameters.
-     *
-     * @return int
+     * Compile route.
      */
-    public function getNumberOfParameters(): int;
+    public function compile(): void;
 }

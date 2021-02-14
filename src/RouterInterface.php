@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * This file is part of Berlioz framework.
  *
  * @license   https://opensource.org/licenses/MIT MIT License
- * @copyright 2017 Ronan GIRON
+ * @copyright 2020 Ronan GIRON
  * @author    Ronan GIRON <https://github.com/ElGigi>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -16,81 +16,40 @@ namespace Berlioz\Router;
 
 use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
-use Serializable;
 
 /**
  * Interface RouterInterface.
  *
  * @package Berlioz\Router
  */
-interface RouterInterface extends Serializable
+interface RouterInterface extends RouteSetInterface
 {
     /**
-     * Get route set.
+     * Generate route.
      *
-     * @return RouteSetInterface
+     * @param string $name
+     * @param array $parameters
+     *
+     * @return string
+     * @throws RoutingException
      */
-    public function getRouteSet(): RouteSetInterface;
+    public function generate(string $name, array $parameters = []): string;
 
     /**
-     * Set route set.
+     * Is valid request?
      *
-     * @param RouteSetInterface $routeSet
-     *
-     * @return static
-     */
-    public function setRouteSet(RouteSetInterface $routeSet): RouterInterface;
-
-    /**
-     * Get server request.
-     *
-     * Can called after RouterInterface::handle() method.
-     * Return the ServerRequest object of current request.
-     *
-     * @return ServerRequestInterface
-     */
-    public function getServerRequest(): ServerRequestInterface;
-
-    /**
-     * Set server request.
-     *
-     * @param ServerRequestInterface $serverRequest
-     *
-     * @return RouterInterface
-     */
-    public function setServerRequest(ServerRequestInterface $serverRequest): RouterInterface;
-
-    /**
-     * Is valid route ?
-     *
-     * Check if a route is associate to the given path and HTTP method.
-     *
-     * @param string $path Path to test
-     * @param string $method Http method
+     * @param ServerRequestInterface $request
      *
      * @return bool
      */
-    public function isValid(string $path, string $method = 'GET'): bool;
+    public function isValid(ServerRequestInterface $request): bool;
 
     /**
-     * Generate route with parameters.
+     * Handle server request.
      *
-     * Must return path route with given name of route and associated parameters.
-     *
-     * @param string $name Name of route
-     * @param array $parameters Parameters for route
-     *
-     * @return string|false
-     */
-    public function generate(string $name, array $parameters = []);
-
-    /**
-     * Handle.
-     *
-     * @param ServerRequestInterface|null $serverRequest Server request
+     * @param ServerRequestInterface $request
      *
      * @return RouteInterface|null
-     * @throws RoutingException
      */
-    public function handle(?ServerRequestInterface &$serverRequest = null): ?RouteInterface;
+    public function handle(ServerRequestInterface &$request): ?RouteInterface;
 }

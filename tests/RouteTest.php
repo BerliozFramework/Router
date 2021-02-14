@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * This file is part of Berlioz framework.
  *
  * @license   https://opensource.org/licenses/MIT MIT License
- * @copyright 2017 Ronan GIRON
+ * @copyright 2020 Ronan GIRON
  * @author    Ronan GIRON <https://github.com/ElGigi>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -13,46 +13,72 @@
 namespace Berlioz\Router\Tests;
 
 use Berlioz\Http\Message\Request;
+use Berlioz\Router\Attribute;
 use Berlioz\Router\Exception\RoutingException;
 use Berlioz\Router\Route;
-use PHPUnit\Framework\TestCase;
 
-class RouteTest extends TestCase
+class RouteTest extends AbstractTestCase
 {
-    private function getValidRoute()
+    public function testConstructorWithOnlyFirstParameter()
     {
-        return new Route(
-            '/my-path/{test}/{test2}',
-            [
-                'method' => 'get',
-                'name' => 'my-route',
-                'foo' => 'bar',
-            ],
-            ['controller' => 'TestTestController']
-        );
+        $route = new Route($path = '/my-path/{foo}/{bar}');
+
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertEquals($path, $route->getPath());
     }
 
     public function testConstructor()
     {
-        $route = new Route('/my-path/{test}/{test2}');
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            ['foo' => 'value', 'bar' => false, 'baz' => 'default'],
+            ['foo' => '\d+', 'bar' => null],
+            'my-route',
+            [Request::HTTP_METHOD_GET],
+            ['getberlioz.com'],
+            100,
+            $options = ['option' => true],
+            $context = ['controller' => 'TestTestController'],
+        );
+
         $this->assertInstanceOf(Route::class, $route);
 
-        $route = new Route(
-            '/my-path/{test}/{test2}',
-            ['option1' => 'test', 'option2' => false],
-            ['controller' => 'TestTestController']
-        );
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals('test', $route->getOptions()['option1']);
-        $this->assertEquals('TestTestController', $route->getContext()['controller']);
+        $this->assertInstanceOf(Attribute::class, $route->getAttribute('foo'));
+        $this->assertEquals('value', $route->getAttribute('foo')->getDefault());
+        $this->assertEquals('\d+', $route->getAttribute('foo')->getRegex());
+
+        $this->assertInstanceOf(Attribute::class, $route->getAttribute('bar'));
+        $this->assertEquals(false, $route->getAttribute('bar')->getDefault());
+        $this->assertNull($route->getAttribute('bar')->getRegex());
+
+        $this->assertInstanceOf(Attribute::class, $route->getAttribute('baz'));
+        $this->assertEquals('default', $route->getAttribute('baz')->getDefault());
+        $this->assertNull($route->getAttribute('baz')->getRegex());
+
+        $this->assertEquals('my-route', $route->getName());
+        $this->assertEquals([Request::HTTP_METHOD_GET], $route->getMethods());
+        $this->assertEquals(['getberlioz.com'], $route->getHosts());
+        $this->assertEquals(100, $route->getPriority());
+
+        $this->assertEquals($options, $route->getOptions());
+        $this->assertEquals(true, $route->getOption('option'));
+        $this->assertNull($route->getOption('unknown'));
+
+        $this->assertEquals($context, $route->getContext());
     }
 
     public function testSerialization()
     {
         $route = new Route(
-            '/my-path/{test}/{test2}',
-            ['option1' => 'test', 'option2' => false],
-            ['controller' => 'TestTestController']
+            '/my-path/{foo}/{bar}',
+            ['foo' => 'value', 'bar' => false, 'baz' => 'default'],
+            ['foo' => '\d+', 'bar' => null],
+            'my-route',
+            [Request::HTTP_METHOD_GET],
+            'getberlioz.com',
+            100,
+            $options = ['option' => true],
+            $context = ['controller' => 'TestTestController'],
         );
 
         $serialized = serialize($route);
@@ -63,33 +89,41 @@ class RouteTest extends TestCase
 
     public function testGetName()
     {
-        $route = $this->getValidRoute();
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            name: 'my-route',
+        );
         $this->assertEquals('my-route', $route->getName());
     }
 
     public function testGetOptions()
     {
-        $route = $this->getValidRoute();
-        $this->assertEquals(
-            [
-                'method' => 'get',
-                'name' => 'my-route',
-                'foo' => 'bar',
-            ],
-            $route->getOptions()
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            options: $options = ['option' => true],
         );
+
+        $this->assertEquals($options, $route->getOptions());
     }
 
     public function testGetOption()
     {
-        $route = $this->getValidRoute();
-        $this->assertEquals('bar', $route->getOption('foo'));
-        $this->assertEquals(false, $route->getOption('bar', false));
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            options: ['option' => true],
+        );
+
+        $this->assertEquals(true, $route->getOption('option'));
+        $this->assertEquals(false, $route->getOption('unknown', false));
+        $this->assertNull($route->getOption('unknown'));
     }
 
     public function testGetContext()
     {
-        $route = $this->getValidRoute();
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            context: ['controller' => 'TestTestController'],
+        );
         $this->assertEquals(
             ['controller' => 'TestTestController'],
             $route->getContext()
@@ -98,7 +132,7 @@ class RouteTest extends TestCase
 
     public function testSetContext()
     {
-        $route = $this->getValidRoute();
+        $route = new Route('/my-path/{foo}/{bar}');
         $context = [
             'controller' => 'Test2Test2Controller',
             'function' => 'MyFunction',
@@ -110,12 +144,15 @@ class RouteTest extends TestCase
 
     public function testGetMethods()
     {
-        // One method
-        $route = $this->getValidRoute();
-        $this->assertEquals([Request::HTTP_METHOD_GET], $route->getMethods());
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            method: [
+                Request::HTTP_METHOD_POST,
+                Request::HTTP_METHOD_GET,
+                Request::HTTP_METHOD_PUT,
+            ]
+        );
 
-        // Multiple methods
-        $route = new Route('/path', ['method' => 'post, get, put']);
         $this->assertEquals(
             [
                 Request::HTTP_METHOD_POST,
@@ -124,9 +161,22 @@ class RouteTest extends TestCase
             ],
             $route->getMethods()
         );
+    }
 
-        // Default methods
-        $route = new Route('/path');
+    public function testGetMethodsWithOneMethod()
+    {
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            method: Request::HTTP_METHOD_GET
+        );
+
+        $this->assertEquals([Request::HTTP_METHOD_GET], $route->getMethods());
+    }
+
+    public function testGetMethodsDefault()
+    {
+        $route = new Route('/my-path/{foo}/{bar}');
+
         $this->assertEquals(
             [
                 Request::HTTP_METHOD_GET,
@@ -144,114 +194,240 @@ class RouteTest extends TestCase
 
     public function testGetRoute()
     {
-        $route = $this->getValidRoute();
-        $this->assertEquals('/my-path/{test}/{test2}', $route->getRoute());
+        $route = new Route('/my-path/{foo}/{bar}');
+
+        $this->assertEquals('/my-path/{foo}/{bar}', $route->getPath());
     }
 
-    public function testTest()
+    public function testTestRoute()
     {
-        $route = $this->getValidRoute();
-        $this->assertEquals(true, $route->test('/my-path/1value1/value2'));
-        $route = $this->getValidRoute();
-        $this->assertEquals(false, $route->test('/my-path/1va/lue1/value2'));
+        $route = new Route('/my-path/{foo}/{bar}');
 
-        // With requirements
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/1value1/value2')));
+        $this->assertFalse($route->test($this->getServerRequest('/my-path/1va/lue1/value2')));
+    }
+
+    public function testTestRouteWithRequirements()
+    {
         $route = new Route(
-            '/my-path/{test}/{test2}',
-            [
-                'requirements' => [
-                    'test' => '\d+',
-                    'test2' => '.+',
-                ],
-            ]
+            '/my-path/{foo}/{bar}',
+            requirements: [
+                'foo' => '\d+',
+                'bar' => '.+',
+            ],
         );
-        $this->assertEquals(true, $route->test('/my-path/123/value2'));
-        $this->assertEquals(false, $route->test('/my-path/12-3/value2'));
-        $this->assertEquals(true, $route->test('/my-path/123/valu/e2'));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/123/value2')));
+        $this->assertFalse($route->test($this->getServerRequest('/my-path/12-3/value2')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/123/valu/e2')));
+
         $route = new Route(
-            '/my-path/{test}/{test2}',
-            [
-                'requirements' => [
-                    'test' => '\d+',
-                    'test2' => '.*',
-                ],
-            ]
+            '/my-path/{foo}/{bar}',
+            requirements: [
+                'foo' => '\d+',
+                'bar' => '.*',
+            ],
         );
-        $this->assertEquals(true, $route->test('/my-path/123/'));
-        $this->assertEquals(true, $route->test('/my-path/123/value2'));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/123/')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/123/value2')));
+    }
+
+    public function testTestRouteWithRequirementsInPath()
+    {
+        $route = new Route('/my-path/{foo::int}/{bar}');
+        $route2 = new Route('/my-path/{foo:\d+}/{bar}');
+
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/123/value2')));
+        $this->assertTrue($route2->test($this->getServerRequest('/my-path/123/value2')));
+        $this->assertFalse($route->test($this->getServerRequest('/my-path/12-3/value2')));
+        $this->assertFalse($route2->test($this->getServerRequest('/my-path/12-3/value2')));
+    }
+
+    public function testTestWithAttributes()
+    {
+        $route = new Route('/my-path/{foo}/{bar}');
+        $attributes = [];
+        $route->test($this->getServerRequest('/my-path/value1/value2'), $attributes);
+
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+                'bar' => 'value2',
+            ],
+            $attributes
+        );
+    }
+
+    public function testTestWithOptionalPart()
+    {
+        $route = new Route('/my-path/{foo}[/{bar}]');
+
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2')));
+    }
+
+    public function testTestWithOptionalPartWith2Attributes()
+    {
+        $route = new Route('/my-path/{foo}[/{bar}/{baz}]');
+
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1')));
+        $this->assertFalse($route->test($this->getServerRequest('/my-path/value1/value2')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/value3')));
+    }
+
+    public function testTestWithNestedOptionalPart()
+    {
+        $route = new Route('/my-path/{foo}[[/{bar}]/sub-path/{baz}]');
+
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/sub-path/value3')));
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/sub-path/value3')));
+    }
+
+    public function testTestForParentRoute()
+    {
+        $parentRoute = new Route(
+            '/path/{foo}',
+            requirements: ['bar' => '\d+']
+        );
+        $parentRoute->addRoute($route = new Route('/sub-path/{bar}', defaults: ['foo' => 'value']));
+
+        $this->assertFalse($parentRoute->test($this->getServerRequest('/path/value/sub-path/123')));
+        $this->assertTrue($route->test($this->getServerRequest('/path/value/sub-path/123')));
     }
 
     public function testGenerate()
     {
-        $route = $this->getValidRoute();
+        $route = new Route('/my-path/{foo}/{bar}');
         $this->assertEquals(
             '/my-path/value1/value2',
-            $route->generate(['test' => 'value1', 'test2' => 'value2'])
+            $route->generate(['foo' => 'value1', 'bar' => 'value2'])
         );
-        $this->assertTrue($route->test($route->generate(['test' => 'value1', 'test2' => 'value2'])));
+        $this->assertTrue(
+            $route->test($this->getServerRequest($route->generate(['foo' => 'value1', 'bar' => 'value2'])))
+        );
 
         $this->assertEquals(
             '/my-path/foo/bar/value2',
-            $route->generate(['test' => 'foo/bar', 'test2' => 'value2'])
+            $route->generate(['foo' => 'foo/bar', 'bar' => 'value2'])
         );
-        $this->assertFalse($route->test($route->generate(['test' => 'foo/bar', 'test2' => 'value2'])));
+        $this->assertFalse(
+            $route->test($this->getServerRequest($route->generate(['foo' => 'foo/bar', 'bar' => 'value2'])))
+        );
 
         $this->assertEquals(
             '/my-path/foo%2Fbar/value2',
-            $route->generate(['test' => urlencode('foo/bar'), 'test2' => 'value2'])
+            $route->generate(['foo' => urlencode('foo/bar'), 'bar' => 'value2'])
         );
-        $this->assertTrue($route->test($route->generate(['test' => urlencode('foo/bar'), 'test2' => 'value2'])));
+        $this->assertTrue(
+            $route->test($this->getServerRequest($route->generate(['foo' => urlencode('foo/bar'), 'bar' => 'value2'])))
+        );
+    }
+
+    public function testGenerateWithDefaultAttribute()
+    {
+        $route = new Route('/my-path/{foo}/{bar}', defaults: ['foo' => 'value1']);
+        $this->assertEquals(
+            '/my-path/value1/value2',
+            $route->generate(['bar' => 'value2'])
+        );
+    }
+
+    public function testGenerateWithMissingAttribute()
+    {
+        $this->expectException(RoutingException::class);
+
+        $route = new Route('/my-path/{foo}/{bar}', defaults: ['foo' => 'value1']);
+        $this->assertEquals(
+            '/my-path/value1/value2',
+            $route->generate()
+        );
     }
 
     public function testGenerateWithMultidimensionalParameters()
     {
-        $route = $this->getValidRoute();
+        $route = new Route(
+            '/my-path/{foo}/{bar}',
+            defaults: ['foo' => 'bar'],
+            name: 'my-route',
+            method: 'get'
+        );
         $parameters = [
-            'foo' => ['bar', 'baz', '', null, 0],
+            'baz' => ['bar', 'baz', '', null, 0],
             'qux' => '',
             'quxx' => null,
-            'test' => 'value1',
-            'test2' => 'value2'
+            'foo' => 'value1',
+            'bar' => 'value2'
         ];
 
         $this->assertEquals(
-            '/my-path/value1/value2?foo%5B0%5D=bar&foo%5B1%5D=baz&foo%5B2%5D=&foo%5B4%5D=0&qux=',
+            '/my-path/value1/value2?baz%5B0%5D=bar&baz%5B1%5D=baz&baz%5B2%5D=&baz%5B4%5D=0&qux=',
             $route->generate($parameters)
         );
-        $this->assertTrue($route->test($route->generate($parameters)));
+        $this->assertTrue($route->test($this->getServerRequest($route->generate($parameters))));
     }
 
-    public function testExtractAttributes()
+    public function testGenerateWithParentRoute()
     {
-        $route = $this->getValidRoute();
+        $parentRoute = new Route(
+            '/path/{foo}',
+            requirements: ['bar' => '\d+']
+        );
+        $parentRoute->addRoute($route = new Route('/sub-path/{bar}', defaults: ['foo' => 'value']));
+
+        $this->assertEquals('/path/value/sub-path/123', $route->generate(['bar' => '123']));
+    }
+
+    public function testGenerateWithOptionalPart()
+    {
+        $route = new Route('/my-path/{foo}[/{bar}]');
+
+        $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1']));
+        $this->assertEquals('/my-path/value1/value2', $route->generate(['foo' => 'value1', 'bar' => 'value2']));
+    }
+
+    public function testGenerateWithOptionalPartWith2Attributes()
+    {
+        $route = new Route('/my-path/{foo}[/{bar}/{baz}]');
+
+        $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1']));
+        $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1', 'bar' => 'value2']));
+        $this->assertEquals('/my-path/value1/value2/value3', $route->generate(['foo' => 'value1', 'bar' => 'value2', 'baz' => 'value3']));
+    }
+
+    public function testGenerateWithNestedOptionalPart()
+    {
+        $route = new Route('/my-path/{foo}[[/{bar}]/sub-path/{baz}]');
+
+        $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1']));
         $this->assertEquals(
-            [
-                'test' => 'value1',
-                'test2' => 'value2',
-            ],
-            $route->extractAttributes('/my-path/value1/value2')
+            '/my-path/value1/sub-path/value3',
+            $route->generate(['foo' => 'value1', 'baz' => 'value3'])
+        );
+        $this->assertEquals(
+            '/my-path/value1/value2/sub-path/value3',
+            $route->generate(['foo' => 'value1', 'bar' => 'value2', 'baz' => 'value3'])
         );
     }
 
-    public function testExtractAttributesException()
+    public function testGenerateWithNestedOptionalPartAndDefaultValue()
     {
-        $route = $this->getValidRoute();
-        $this->expectException(RoutingException::class);
-        $route->extractAttributes('/my-path/value1');
+        $route = new Route('/my-path/{foo}[[/{bar}]/sub-path/{baz}]', defaults: ['baz' => 'default']);
+
+        $this->assertEquals('/my-path/value1/sub-path/default', $route->generate(['foo' => 'value1']));
     }
 
-    public function testGetNumberOfParameters()
+    public function testGetRoutes()
     {
-        $route = $this->getValidRoute();
-        $this->assertEquals(2, $route->getNumberOfParameters());
+        $parentRoute = new Route(
+            '/path/{foo}',
+            requirements: ['bar' => '\d+']
+        );
+        $parentRoute->addRoute(new Route('/sub-path/{bar}', defaults: ['foo' => 'value']));
+        $parentRoute2 = new Route('/path2/{foo}');
+        $parentRoute2->addRoute(new Route('/sub-path2/{bar}', defaults: ['foo' => 'value']));
+        $parentRoute->addRoute($parentRoute2);
 
-        $route = new Route('/my-path/value1/value2');
-        $this->assertEquals(0, $route->getNumberOfParameters());
-    }
-
-    public function testRouteWithDuplicateAttributes()
-    {
-        $this->expectException(RoutingException::class);
-        new Route('/my-path/{test}/{test2}/{test}');
+        $routes = iterator_to_array($parentRoute->getRoutes(), false);
+        $this->assertCount(2, $routes);
     }
 }

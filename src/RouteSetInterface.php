@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * This file is part of Berlioz framework.
  *
  * @license   https://opensource.org/licenses/MIT MIT License
- * @copyright 2017 Ronan GIRON
+ * @copyright 2020 Ronan GIRON
  * @author    Ronan GIRON <https://github.com/ElGigi>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -14,60 +14,49 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
-use Berlioz\Router\Exception\RoutingException;
 use Countable;
-use Psr\Http\Message\UriInterface;
-use Serializable;
+use Generator;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Interface RouteSetInterface
+ * Interface RouteSetInterface.
  *
  * @package Berlioz\Router
  */
-interface RouteSetInterface extends Countable, Serializable
+interface RouteSetInterface extends Countable
 {
     /**
-     * Add new route.
+     * Count number of routes.
      *
-     * @param RouteInterface $route Route to add
-     *
-     * @return RouteSetInterface
-     * @throws RoutingException If route already exists
+     * @return int
      */
-    public function addRoute(RouteInterface $route): RouteSetInterface;
+    public function count(): int;
 
     /**
      * Get routes.
      *
-     * @return RouteInterface[]
+     * @param string|null $name
+     *
+     * @return Generator<RouteInterface>
      */
-    public function getRoutes(): array;
+    public function getRoutes(?string $name = null): Generator;
 
     /**
-     * Merge route set with another.
+     * Search route.
      *
-     * @param RouteSetInterface $routeSet
-     *
-     * @return RouteSetInterface
-     */
-    public function merge(RouteSetInterface $routeSet): RouteSetInterface;
-
-    /**
-     * Get routes by name.
-     *
-     * @param string $name Name of route
+     * @param ServerRequestInterface $request
+     * @param array $attributes
      *
      * @return RouteInterface|null
      */
-    public function getByName($name): ?RouteInterface;
+    public function searchRoute(ServerRequestInterface $request, array &$attributes = []): ?RouteInterface;
 
     /**
-     * Search route for given uri and method.
+     * Add route.
      *
-     * @param UriInterface $uri Uri
-     * @param string|null $method Http method
+     * @param RouteInterface ...$route
      *
-     * @return RouteInterface|null
+     * @return static
      */
-    public function searchRoute(UriInterface $uri, string $method = null): ?RouteInterface;
+    public function addRoute(RouteInterface ...$route): static;
 }
