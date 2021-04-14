@@ -55,7 +55,7 @@ class Route implements RouteInterface
      * @throws RoutingException
      */
     public function __construct(
-        protected ?string $path = null,
+        protected string $path = '',
         array $defaults = [],
         array $requirements = [],
         protected ?string $name = null,
@@ -67,7 +67,7 @@ class Route implements RouteInterface
     ) {
         // Extract attributes from path
         $this->path =
-            preg_replace_callback(
+            (string)preg_replace_callback(
                 static::REGEX_ATTRIBUTE,
                 function ($matches) {
                     $name = $matches['name'];

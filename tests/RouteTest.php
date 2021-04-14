@@ -67,6 +67,13 @@ class RouteTest extends AbstractTestCase
         $this->assertEquals($context, $route->getContext());
     }
 
+    public function testConstructor_withoutParameters()
+    {
+        $route = new Route();
+
+        $this->assertInstanceOf(Route::class, $route);
+    }
+
     public function testSerialization()
     {
         $route = new Route(
@@ -375,6 +382,14 @@ class RouteTest extends AbstractTestCase
         $parentRoute->addRoute($route = new Route('/sub-path/{bar}', defaults: ['foo' => 'value']));
 
         $this->assertEquals('/path/value/sub-path/123', $route->generate(['bar' => '123']));
+    }
+
+    public function testGenerateWithParentRouteAndEmptyPath()
+    {
+        $parentRoute = new Route(requirements: ['bar' => '\d+']);
+        $parentRoute->addRoute($route = new Route('/sub-path/{bar}'));
+
+        $this->assertEquals('/sub-path/123', $route->generate(['bar' => '123']));
     }
 
     public function testGenerateWithOptionalPart()
