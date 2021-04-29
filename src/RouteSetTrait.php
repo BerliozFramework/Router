@@ -32,23 +32,45 @@ trait RouteSetTrait
     }
 
     /**
-     * Get routes.
+     * Get a route by name.
      *
-     * @param string|null $name
+     * @param string $name
      *
-     * @return Generator<RouteInterface>
+     * @return Route|null
      */
-    public function getRoutes(?string $name = null): Generator
+    public function getRoute(string $name): ?Route
     {
+        /** @var Route $route */
         foreach ($this->routes as $route) {
-            if ($route->isGroup()) {
-                yield from $route->getRoutes($name);
+            if (true === $route->isGroup()) {
+                if (null !== ($found = $route->getRoute($name))) {
+                    return $found;
+                }
                 continue;
             }
 
-            if (null === $name || $route->getName() === $name) {
-                yield $route;
+            if ($route->getName() === $name) {
+                return $route;
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get routes.
+     *
+     * @return Generator<RouteInterface>
+     */
+    public function getRoutes(): Generator
+    {
+        foreach ($this->routes as $route) {
+            if (true === $route->isGroup()) {
+                yield from $route->getRoutes();
+                continue;
+            }
+
+            yield $route;
         }
     }
 

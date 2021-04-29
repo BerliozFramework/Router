@@ -126,53 +126,11 @@ class RouterTest extends AbstractTestCase
         $router->generate('route2', ['attr2' => 'test2']);
     }
 
-    public function testGenerateWithRoutesWithSameName()
-    {
-        $router = new Router;
-        $router->addRoute(new Route('/path/path/sub-path', name: 'route'));
-        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route'));
-        $router->addRoute(new Route('/path/{attr1}/sub-{attr2}', name: 'route'));
-        $router->addRoute(
-            new Route(
-                '/path/{attr1}/{attr2}-{attr3}',
-                requirements: ['attr2' => 'path'],
-                name: 'route'
-            )
-        );
-
-        $this->assertEquals(
-            '/path/path/sub-path',
-            $router->generate('route')
-        );
-        $this->assertEquals(
-            '/path/path1/sub-path',
-            $router->generate('route', ['attr1' => 'path1'])
-        );
-        $this->assertEquals(
-            '/path/path1/sub-path2',
-            $router->generate('route', ['attr1' => 'path1', 'attr2' => 'path2'])
-        );
-        $this->assertEquals(
-            '/path/path1/path2-path3',
-            $router->generate('route', ['attr1' => 'path1', 'attr2' => 'path2', 'attr3' => 'path3'])
-        );
-    }
-
-    public function testGenerateAmbiguousRoute()
-    {
-        $router = new Router;
-        $router->addRoute(new Route('/path/path/sub-{attr1}', name: 'route'));
-        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route'));
-
-        $this->expectException(AmbiguousException::class);
-        $router->generate('route', ['attr1' => 'path']);
-    }
-
     public function testGenerateWithRouteAttributes()
     {
         $router = new Router;
-        $router->addRoute(new Route('/path/{user}/{attr}', name: 'route'));
-        $router->addRoute(new Route('/path/{user}/sub-path', name: 'route'));
+        $router->addRoute(new Route('/path/{user}/{attr}', name: 'route1'));
+        $router->addRoute(new Route('/path/{user}/sub-path', name: 'route2'));
 
         $fakeRouteAttributes1 = new class implements RouteAttributes {
             public function routeAttributes(): array
@@ -194,19 +152,19 @@ class RouterTest extends AbstractTestCase
 
         $this->assertEquals(
             '/path/1/foo',
-            $router->generate('route', $fakeRouteAttributes1)
+            $router->generate('route1', $fakeRouteAttributes1)
         );
         $this->assertEquals(
             '/path/1/sub-path',
-            $router->generate('route', $fakeRouteAttributes2)
+            $router->generate('route2', $fakeRouteAttributes2)
         );
         $this->assertEquals(
             '/path/1/bar',
-            $router->generate('route', [$fakeRouteAttributes2, 'attr' => 'bar'])
+            $router->generate('route1', [$fakeRouteAttributes2, 'attr' => 'bar'])
         );
         $this->assertEquals(
-            '/path/1/bar',
-            $router->generate('route', [$fakeRouteAttributes2, ['attr' => 'bar']])
+            '/path/1/sub-path?attr=bar',
+            $router->generate('route2', [$fakeRouteAttributes2, ['attr' => 'bar']])
         );
     }
 

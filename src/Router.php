@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
-use Berlioz\Router\Exception\AmbiguousException;
 use Berlioz\Router\Exception\NotFoundException;
 use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -89,37 +88,14 @@ class Router implements RouterInterface
      */
     public function generate(string $name, array|RouteAttributes $parameters = []): string
     {
-        $routesFound = [];
-        $exceptions = [];
         $parameters = $this->generateParameters($parameters);
+        $route = $this->getRoute($name);
 
-        /** @var Route $route */
-        foreach ($this->getRoutes($name) as $route) {
-            try {
-                $nbUsed = 0;
-                $path = $route->generate($parameters, $nbUsed);
-                $routesFound[$nbUsed][] = $path;
-            } catch (RoutingException $e) {
-                $exceptions[] = $e;
-            }
+        if (null === $route) {
+            throw new NotFoundException(sprintf('Route "%s" does not exists', $name));
         }
 
-        krsort($routesFound);
-
-        // Get first routes or return false if not found
-        if (false === ($routesFound = reset($routesFound))) {
-            if (!empty($exceptions)) {
-                throw reset($exceptions);
-            }
-
-            throw new NotFoundException(sprintf('Route "%s" not found with given parameters', $name));
-        }
-
-        if (count($routesFound) > 1) {
-            throw AmbiguousException::multiple($name);
-        }
-
-        return reset($routesFound);
+        return $route->generate($parameters);
     }
 
     private function generateParameters(array|RouteAttributes $parameters = []): array

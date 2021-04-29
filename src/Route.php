@@ -135,6 +135,7 @@ class Route implements RouteInterface
             'options' => $this->options,
             'context' => $this->context,
             'path_regex' => $this->path_regex,
+            'routes' => $this->routes,
         ];
     }
 
@@ -154,6 +155,7 @@ class Route implements RouteInterface
         $this->options = $data['options'];
         $this->context = $data['context'];
         $this->path_regex = $data['path_regex'];
+        $this->routes = $data['routes'];
 
         // Set group parent
         array_map(fn(Route $route) => $route->setParent($this), $this->routes);
@@ -206,22 +208,6 @@ class Route implements RouteInterface
     public function getAttribute(string $name): ?Attribute
     {
         return $this->attributes[$name] ?? $this->parent?->getAttribute($name);
-//        $parentAttribute = $this->parent?->getAttribute($name);
-
-        // If not exists, return parent attribute
-//        if (!array_key_exists($name, $this->attributes)) {
-//            return $parentAttribute;
-//        }
-
-//        $attribute = $this->attributes[$name];
-//        if (!$attribute->hasRegex()) {
-//            $attribute->setRegex($parentAttribute?->getRegex());
-//        }
-//        if (!$attribute->hasDefault()) {
-//            $attribute->setDefault($parentAttribute?->getDefault());
-//        }
-//
-//        return $attribute;
     }
 
     /**
@@ -436,13 +422,26 @@ class Route implements RouteInterface
         // Remove optionals attributes
         $count = 0;
         do {
-            $path = preg_replace('~\[[^][]*{' . static::REGEX_ATTRIBUTE_NAME . '}[^][]*\]~', '', $path, -1, $count);
+            $path = preg_replace(
+                '~\[[^][]*{' . static::REGEX_ATTRIBUTE_NAME . '}[^][]*\]~',
+                '',
+                $path,
+                -1,
+                $count
+            );
         } while ($count > 0);
 
         // Check if missing attribute
         $matches = [];
-        if (preg_match('~{(?<name>' . static::REGEX_ATTRIBUTE_NAME . ')}~', $path, $matches) > 0) {
-            throw RoutingException::missingAttribute($matches['name'], $this->getName());
+        if (str_contains($path, '{')) {
+            if (preg_match_all(
+                    '~{(?<name>' . static::REGEX_ATTRIBUTE_NAME . ')}~',
+                    $path,
+                    $matches,
+                    PREG_PATTERN_ORDER
+                ) > 0) {
+                throw RoutingException::missingAttributes($matches['name'], $this->getName());
+            }
         }
 
         // Remove brackets

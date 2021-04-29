@@ -33,13 +33,20 @@ interface RouteSetInterface extends Countable
     public function count(): int;
 
     /**
-     * Get routes.
+     * Get a route by name.
      *
-     * @param string|null $name
+     * @param string $name
+     *
+     * @return Route|null
+     */
+    public function getRoute(string $name): ?Route;
+
+    /**
+     * Get routes.
      *
      * @return Generator<RouteInterface>
      */
-    public function getRoutes(?string $name = null): Generator;
+    public function getRoutes(): Generator;
 
     /**
      * Search route.

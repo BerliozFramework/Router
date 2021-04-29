@@ -24,19 +24,27 @@ use Exception;
 class RoutingException extends Exception
 {
     /**
-     * Missing attribute.
+     * Missing attributes.
      *
-     * @param string $name
+     * @param array $attributes
      * @param string|null $route
      *
      * @return static
      */
-    public static function missingAttribute(string $name, ?string $route): static
+    public static function missingAttributes(array $attributes, ?string $route): static
     {
+        array_walk($attributes, fn(string &$attribute) => $attribute = '"' . $attribute . '"');
+
         if (null === $route) {
-            return new static(sprintf('Missing attribute "%s" to generate route', $name));
+            return new static(sprintf('Missing attributes %s to generate route', implode(', ', $attributes)));
         }
 
-        return new static(sprintf('Missing attribute "%s" to generate route "%s"', $name, $route));
+        return new static(
+            sprintf(
+                'Missing attributes %s to generate route "%s"',
+                implode(', ', $attributes),
+                $route
+            )
+        );
     }
 }

@@ -6,9 +6,18 @@ use [Keep a Changelog] (http://keepachangelog.com/).
 
 ## [2.0.0-beta1]
 
+### Changed
+
+- `RoutingException` details all missing attributes to generate root
+
+### Removed
+
+- Remove multiple routes with same name
+
 ### Fixed
 
 - Fixed `Route` with empty path
+- Fixed serialization of sub routes
 
 ## [2.0.0-alpha1]
 
