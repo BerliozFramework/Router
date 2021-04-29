@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
-## [2.0.0-beta1]
+## [2.0.0-beta1] - 2021-04-29
 
 ### Changed
 
@@ -19,7 +19,7 @@ use [Keep a Changelog] (http://keepachangelog.com/).
 - Fixed `Route` with empty path
 - Fixed serialization of sub routes
 
-## [2.0.0-alpha1]
+## [2.0.0-alpha1] - 2021-02-14
 
 ### Added
 
