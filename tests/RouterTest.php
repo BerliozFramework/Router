@@ -14,7 +14,6 @@ namespace Berlioz\Router\Tests;
 
 use Berlioz\Http\Message\Request;
 use Berlioz\Http\Message\Uri;
-use Berlioz\Router\Exception\AmbiguousException;
 use Berlioz\Router\Exception\NotFoundException;
 use Berlioz\Router\Exception\RoutingException;
 use Berlioz\Router\Route;
@@ -202,6 +201,27 @@ class RouterTest extends AbstractTestCase
             )
         );
         $this->assertFalse($router->isValid($this->getServerRequest('/unknown-path/test')));
+    }
+
+    public function testIsValid_withString()
+    {
+        $router = new Router;
+        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
+        $router->addRoute(
+            new Route(
+                '/path/{attr1}/sub-path/{attr2}',
+                defaults: ['attr2' => 'default'],
+                requirements: ['attr1' => '\d+'],
+                name: 'route2',
+                method: 'post',
+            )
+        );
+
+        $this->assertTrue($router->isValid('/path/test/sub-path?querystring1=value1&querystring2=value1'));
+        $this->assertFalse($router->isValid('/path/test/sub-path/test?querystring1=value1&querystring2=value1'));
+        $this->assertFalse($router->isValid('/path/123/sub-path/test?querystring1=value1&querystring2=value1'));
+        $this->assertFalse($router->isValid('/path/123/sub-path/test?querystring1=value1&querystring2=value1'));
+        $this->assertFalse($router->isValid('/unknown-path/test'));
     }
 
     public function testHandle()

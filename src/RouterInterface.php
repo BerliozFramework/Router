@@ -38,11 +38,11 @@ interface RouterInterface extends RouteSetInterface
     /**
      * Is valid request?
      *
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface|string $request
      *
      * @return bool
      */
-    public function isValid(ServerRequestInterface $request): bool;
+    public function isValid(ServerRequestInterface|string $request): bool;
 
     /**
      * Handle server request.

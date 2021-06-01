@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+use Berlioz\Http\Message\Request;
+use Berlioz\Http\Message\ServerRequest;
 use Berlioz\Router\Exception\NotFoundException;
 use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -129,12 +131,16 @@ class Router implements RouterInterface
     /**
      * Is valid request?
      *
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface|string $request
      *
      * @return bool
      */
-    public function isValid(ServerRequestInterface $request): bool
+    public function isValid(ServerRequestInterface|string $request): bool
     {
+        if (true === is_string($request)) {
+            $request = new ServerRequest(Request::HTTP_METHOD_GET, $request);
+        }
+
         /** @var Route $route */
         foreach ($this->getRoutes() as $route) {
             if ($route->test($request)) {
