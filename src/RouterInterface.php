@@ -28,12 +28,12 @@ interface RouterInterface extends RouteSetInterface
      * Generate route.
      *
      * @param string $name
-     * @param array $parameters
+     * @param array|RouteAttributes $parameters
      *
      * @return string
      * @throws RoutingException
      */
-    public function generate(string $name, array $parameters = []): string;
+    public function generate(string $name, array|RouteAttributes $parameters = []): string;
 
     /**
      * Is valid request?
