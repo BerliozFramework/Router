@@ -42,7 +42,7 @@ class Route implements RouteInterface
     /**
      * Route constructor.
      *
-     * @param string|null $path
+     * @param string $path
      * @param array $defaults
      * @param array $requirements
      * @param string|null $name

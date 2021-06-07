@@ -14,7 +14,15 @@ declare(strict_types=1);
 
 namespace Berlioz\Router;
 
+/**
+ * Interface RouteAttributes.
+ */
 interface RouteAttributes
 {
+    /**
+     * Get attributes to generate route path.
+     *
+     * @return array
+     */
     public function routeAttributes(): array;
 }

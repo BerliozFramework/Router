@@ -64,6 +64,7 @@ trait RouteSetTrait
      */
     public function getRoutes(): Generator
     {
+        /** @var Route $route */
         foreach ($this->routes as $route) {
             if (true === $route->isGroup()) {
                 yield from $route->getRoutes();
