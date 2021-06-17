@@ -162,8 +162,12 @@ class RouterTest extends AbstractTestCase
             $router->generate('route1', [$fakeRouteAttributes2, 'attr' => 'bar'])
         );
         $this->assertEquals(
-            '/path/1/sub-path?attr=bar',
-            $router->generate('route2', [$fakeRouteAttributes2, ['attr' => 'bar']])
+            '/path/1/sub-path?foo%5Battr%5D=bar',
+            $router->generate('route2', [$fakeRouteAttributes2, 'foo' => ['attr' => 'bar']])
+        );
+        $this->assertEquals(
+            '/path/1/sub-path?foo%5Battr%5D%5B0%5D=bar',
+            $router->generate('route2', [$fakeRouteAttributes2, 'foo' => ['attr' => ['bar']]])
         );
     }
 

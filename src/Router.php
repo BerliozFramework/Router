@@ -116,11 +116,6 @@ class Router implements RouterInterface
                     return;
                 }
 
-                if (is_array($parameter)) {
-                    $finalParameters = array_merge($finalParameters, $parameter);
-                    return;
-                }
-
                 $finalParameters = array_merge($finalParameters, [$key => $parameter]);
             }
         );
