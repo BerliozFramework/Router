@@ -16,7 +16,6 @@ namespace Berlioz\Router\Tests;
 
 use Berlioz\Http\Message\Request;
 use Berlioz\Http\Message\ServerRequest;
-use Berlioz\Http\Message\Stream;
 use Berlioz\Http\Message\Uri;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,7 +26,7 @@ abstract class AbstractTestCase extends TestCase
         string $path = 'https://www.phpunit.com/path/test/sub-path',
         string $method = Request::HTTP_METHOD_GET
     ): ServerRequestInterface {
-        return new ServerRequest($method, Uri::createFromString($path), [], [], [], new Stream());
+        return new ServerRequest($method, Uri::createFromString($path));
     }
 
 }
