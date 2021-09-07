@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/packagist/v/berlioz/router.svg?style=flat-square)](https://github.com/BerliozFramework/Router/releases)
 [![Software license](https://img.shields.io/github/license/BerliozFramework/Router.svg?style=flat-square)](https://github.com/BerliozFramework/Router/blob/1.x/LICENSE)
-[![Build Status](https://img.shields.io/travis/com/BerliozFramework/Router/1.x.svg?style=flat-square)](https://travis-ci.com/BerliozFramework/Router)
+[![Build Status](https://img.shields.io/github/workflow/status/BerliozFramework/Router/Tests/1.x.svg?style=flat-square)](https://github.com/BerliozFramework/Router/actions/workflows/tests.yml?query=branch%3A1.x)
 [![Quality Grade](https://img.shields.io/codacy/grade/698b7941569c4926b67bab59efbcfafd/1.x.svg?style=flat-square)](https://www.codacy.com/manual/BerliozFramework/Router)
 [![Total Downloads](https://img.shields.io/packagist/dt/berlioz/router.svg?style=flat-square)](https://packagist.org/packages/berlioz/router)
 
