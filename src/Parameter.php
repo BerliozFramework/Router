@@ -44,18 +44,28 @@ class Parameter implements Serializable
         $this->regexValidation = $regexValidation;
     }
 
+    public function __serialize(): array
+    {
+        return [
+            'name' => $this->name,
+            'defaultValue' => $this->defaultValue,
+            'regexValidation' => $this->regexValidation
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->name = $data['name'];
+        $this->defaultValue = $data['defaultValue'];
+        $this->regexValidation = $data['regexValidation'];
+    }
+
     /**
      * @inheritdoc
      */
     public function serialize(): string
     {
-        return serialize(
-            [
-                'name' => $this->name,
-                'defaultValue' => $this->defaultValue,
-                'regexValidation' => $this->regexValidation
-            ]
-        );
+        return serialize($this->__serialize());
     }
 
     /**
@@ -63,11 +73,7 @@ class Parameter implements Serializable
      */
     public function unserialize($serialized)
     {
-        $tmpUnserialized = unserialize($serialized);
-
-        $this->name = $tmpUnserialized['name'];
-        $this->defaultValue = $tmpUnserialized['defaultValue'];
-        $this->regexValidation = $tmpUnserialized['regexValidation'];
+        $this->__unserialize(unserialize($serialized));
     }
 
     /**

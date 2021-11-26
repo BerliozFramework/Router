@@ -35,12 +35,24 @@ class RouteSet implements RouteSetInterface
         $this->routes = [];
     }
 
+    public function __serialize(): array
+    {
+        return [
+            'routes' => $this->routes
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->routes = $data['routes'];
+    }
+
     /**
      * @inheritdoc
      */
     public function serialize(): string
     {
-        return serialize(['routes' => $this->routes]);
+        return serialize($this->__serialize());
     }
 
     /**
@@ -48,9 +60,7 @@ class RouteSet implements RouteSetInterface
      */
     public function unserialize($serialized)
     {
-        $tmpUnserialized = unserialize($serialized);
-
-        $this->routes = $tmpUnserialized['routes'];
+        $this->__unserialize(unserialize($serialized));
     }
 
     /**

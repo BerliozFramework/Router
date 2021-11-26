@@ -39,12 +39,24 @@ class Router implements RouterInterface
     /** @var ServerRequestInterface Server request */
     private $serverRequest;
 
+    public function __serialize(): array
+    {
+        return [
+            'routeSet' => $this->routeSet
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->routeSet = $data['routeSet'];
+    }
+
     /**
      * @inheritdoc
      */
     public function serialize(): string
     {
-        return serialize(['routeSet' => $this->routeSet]);
+        return serialize($this->__serialize());
     }
 
     /**
@@ -52,9 +64,7 @@ class Router implements RouterInterface
      */
     public function unserialize($serialized)
     {
-        $tmpUnserialized = unserialize($serialized);
-
-        $this->routeSet = $tmpUnserialized['routeSet'];
+        $this->__unserialize(unserialize($serialized));
     }
 
     /**

@@ -74,20 +74,32 @@ class Route implements RouteInterface
         }
     }
 
+    public function __serialize(): array
+    {
+        return [
+            'route' => $this->route,
+            'options' => $this->options,
+            'route_regex' => $this->route_regex,
+            'context' => $this->context,
+            'parameters' => $this->parameters,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->route = $data['route'];
+        $this->options = $data['options'];
+        $this->route_regex = $data['route_regex'];
+        $this->context = $data['context'];
+        $this->parameters = $data['parameters'];
+    }
+
     /**
      * @inheritdoc
      */
     public function serialize(): string
     {
-        return serialize(
-            [
-                'route' => $this->route,
-                'options' => $this->options,
-                'route_regex' => $this->route_regex,
-                'context' => $this->context,
-                'parameters' => $this->parameters,
-            ]
-        );
+        return serialize($this->__serialize());
     }
 
     /**
@@ -95,13 +107,7 @@ class Route implements RouteInterface
      */
     public function unserialize($serialized)
     {
-        $tmpUnserialized = unserialize($serialized);
-
-        $this->route = $tmpUnserialized['route'];
-        $this->options = $tmpUnserialized['options'];
-        $this->route_regex = $tmpUnserialized['route_regex'];
-        $this->context = $tmpUnserialized['context'];
-        $this->parameters = $tmpUnserialized['parameters'];
+        $this->__unserialize(unserialize($serialized));
     }
 
     /**
