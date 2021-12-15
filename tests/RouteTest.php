@@ -397,6 +397,7 @@ class RouteTest extends AbstractTestCase
         $route = new Route('/my-path/{foo}[/{bar}]');
 
         $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1']));
+        $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1', 'bar' => null]));
         $this->assertEquals('/my-path/value1/value2', $route->generate(['foo' => 'value1', 'bar' => 'value2']));
     }
 

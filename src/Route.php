@@ -396,6 +396,7 @@ class Route implements RouteInterface
     {
         $this->compile();
 
+        $parameters = array_filter($parameters, fn($value) => null !== $value);
         $path =
             (string)preg_replace_callback(
                 static::REGEX_ATTRIBUTE,
