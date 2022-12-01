@@ -362,7 +362,12 @@ class Route implements RouteInterface
         }
 
         $matches = [];
-        if (preg_match('~^' . $this->getPathRegex() . '$~i', $request->getUri()->getPath(), $matches) !== 1) {
+        if (preg_match(
+                '~^' . $this->getPathRegex() . '$~i',
+                $request->getUri()->getPath(),
+                $matches,
+                PREG_UNMATCHED_AS_NULL
+            ) !== 1) {
             return false;
         }
 
@@ -379,6 +384,7 @@ class Route implements RouteInterface
         }
 
         $attributes = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+        $attributes = array_filter($attributes, fn($value) => null !== $value);
 
         return true;
     }

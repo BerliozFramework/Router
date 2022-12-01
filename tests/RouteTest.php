@@ -276,18 +276,62 @@ class RouteTest extends AbstractTestCase
     {
         $route = new Route('/my-path/{foo}[/{bar}/{baz}]');
 
-        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1')));
+        $attributes = [];
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1'), $attributes));
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+            ],
+            $attributes
+        );
+
         $this->assertFalse($route->test($this->getServerRequest('/my-path/value1/value2')));
-        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/value3')));
+
+        $attributes = [];
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/value3'), $attributes));
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+                'bar' => 'value2',
+                'baz' => 'value3',
+            ],
+            $attributes
+        );
     }
 
     public function testTestWithNestedOptionalPart()
     {
         $route = new Route('/my-path/{foo}[[/{bar}]/sub-path/{baz}]');
 
-        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1')));
-        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/sub-path/value3')));
-        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/sub-path/value3')));
+        $attributes = [];
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1'), $attributes));
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+            ],
+            $attributes
+        );
+
+        $attributes = [];
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/sub-path/value3'), $attributes));
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+                'baz' => 'value3',
+            ],
+            $attributes
+        );
+
+        $attributes = [];
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/value1/value2/sub-path/value3'), $attributes));
+        $this->assertEquals(
+            [
+                'foo' => 'value1',
+                'bar' => 'value2',
+                'baz' => 'value3',
+            ],
+            $attributes
+        );
     }
 
     public function testTestForParentRoute()
@@ -407,7 +451,10 @@ class RouteTest extends AbstractTestCase
 
         $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1']));
         $this->assertEquals('/my-path/value1', $route->generate(['foo' => 'value1', 'bar' => 'value2']));
-        $this->assertEquals('/my-path/value1/value2/value3', $route->generate(['foo' => 'value1', 'bar' => 'value2', 'baz' => 'value3']));
+        $this->assertEquals(
+            '/my-path/value1/value2/value3',
+            $route->generate(['foo' => 'value1', 'bar' => 'value2', 'baz' => 'value3'])
+        );
     }
 
     public function testGenerateWithNestedOptionalPart()
