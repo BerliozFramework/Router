@@ -169,7 +169,7 @@ class Router implements RouterInterface
             $_SERVER['REQUEST_SCHEME'] ?? '',
             $_SERVER['HTTP_HOST'] ?? '',
             $_SERVER['SERVER_PORT'] ?? 80,
-            $path,
+            $path ?? '',
             $queryString,
             '',
             $_SERVER['PHP_AUTH_USER'] ?? '',
