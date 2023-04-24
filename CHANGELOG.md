@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [1.3.1] - 2023-04-24
+
+### Fixed
+
+- Uri's creation with string port instead of integer
+
 ## [1.3.0] - 2023-04-14
 
 ### Added

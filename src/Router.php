@@ -168,7 +168,7 @@ class Router implements RouterInterface
         $requestUri = new Uri(
             $_SERVER['REQUEST_SCHEME'] ?? '',
             $_SERVER['HTTP_HOST'] ?? '',
-            $_SERVER['SERVER_PORT'] ?? 80,
+            (int)($_SERVER['SERVER_PORT'] ?? 80),
             $path ?? '',
             $queryString,
             '',
