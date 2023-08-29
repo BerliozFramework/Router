@@ -16,6 +16,7 @@ use Berlioz\Http\Message\Request;
 use Berlioz\Router\Attribute;
 use Berlioz\Router\Exception\RoutingException;
 use Berlioz\Router\Route;
+use Exception;
 
 class RouteTest extends AbstractTestCase
 {
@@ -251,10 +252,19 @@ class RouteTest extends AbstractTestCase
 
     public function testTestRouteWithRequirementsInPath_deprecated()
     {
-        $this->expectDeprecation();
+        set_error_handler(
+            function (int $errno, string $errstr) {
+                throw new Exception($errstr, $errno);
+            },
+            E_USER_DEPRECATED
+        );
+
+        $this->expectExceptionCode(E_USER_DEPRECATED);
 
         $route = new Route('/my-path/{foo::uuid}');
         $this->assertTrue($route->test($this->getServerRequest('/my-path/8bd71855-5e84-4a0e-9595-98a5f180840d')));
+
+        restore_error_handler();
     }
 
     public function testTestWithAttributes()
