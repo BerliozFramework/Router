@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [2.1.0] - 2023-08-29
+
+### Added
+
+- New type of attribute: "slug"
+- New type of attribute: "uuid4"
+
+### Deprecated
+
+- Attribute type: "uuid" ; use "uuid4" instead
+
 ## [2.0.2] - 2022-12-01
 
 ### Fixed

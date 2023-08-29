@@ -17,8 +17,8 @@ namespace Berlioz\Router;
 use Berlioz\Http\Message\Request;
 use Berlioz\Router\Exception\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
-
 use const ARRAY_FILTER_USE_KEY;
+use const E_USER_DEPRECATED;
 
 /**
  * Class Route.
@@ -85,6 +85,20 @@ class Route implements RouteInterface
                                 Attribute::TYPES[$matches['type']] ??
                                 throw new RoutingException(sprintf('Unknown type "%s"', $matches['type']))
                             );
+
+                            // Deprecated type?
+                            if (array_key_exists($matches['type'], Attribute::DEPRECATED_TYPES)) {
+                                $deprecated = Attribute::DEPRECATED_TYPES[$matches['type']];
+
+                                trigger_error(
+                                    sprintf(
+                                        'Attribute type "%s" is deprecated%s',
+                                        $matches['type'],
+                                        $deprecated ? sprintf(' use "%s" instead', $deprecated) : ''
+                                    ),
+                                    E_USER_DEPRECATED
+                                );
+                            }
                         }
                     }
 

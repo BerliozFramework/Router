@@ -249,6 +249,14 @@ class RouteTest extends AbstractTestCase
         $this->assertFalse($route2->test($this->getServerRequest('/my-path/12-3/value2')));
     }
 
+    public function testTestRouteWithRequirementsInPath_deprecated()
+    {
+        $this->expectDeprecation();
+
+        $route = new Route('/my-path/{foo::uuid}');
+        $this->assertTrue($route->test($this->getServerRequest('/my-path/8bd71855-5e84-4a0e-9595-98a5f180840d')));
+    }
+
     public function testTestWithAttributes()
     {
         $route = new Route('/my-path/{foo}/{bar}');

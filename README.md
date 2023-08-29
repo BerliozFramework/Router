@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/packagist/v/berlioz/router.svg?style=flat-square)](https://github.com/BerliozFramework/Router/releases)
 [![Software license](https://img.shields.io/github/license/BerliozFramework/Router.svg?style=flat-square)](https://github.com/BerliozFramework/Router/blob/2.x/LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/BerliozFramework/Router/Tests/2.x.svg?style=flat-square)](https://github.com/BerliozFramework/Router/actions/workflows/tests.yml?query=branch%3A2.x)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/BerliozFramework/Router/tests.yml?branch=2.x&style=flat-square)](https://github.com/BerliozFramework/Router/actions/workflows/tests.yml?query=branch%3A2.x)
 [![Quality Grade](https://img.shields.io/codacy/grade/698b7941569c4926b67bab59efbcfafd/2.x.svg?style=flat-square)](https://www.codacy.com/manual/BerliozFramework/Router)
 [![Total Downloads](https://img.shields.io/packagist/dt/berlioz/router.svg?style=flat-square)](https://packagist.org/packages/berlioz/router)
 
@@ -85,7 +85,8 @@ Supported defined types:
 
 - `int` (equivalent of `\d+`)
 - `float` (equivalent of `\d+(\.\d+)`)
-- `uuid` (equivalent of `[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}`)
+- `uuid4` (equivalent of `[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}`)
+- `slug` (equivalent of `[a-z0-9]+(?:-[a-z0-9]+)*`)
 - `md5` (equivalent of `[0-9a-fA-F]{32}`)
 - `sha1` (equivalent of `[0-9a-fA-F]{40}`)
 - `domain` (equivalent of `([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}`)

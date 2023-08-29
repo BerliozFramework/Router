@@ -25,9 +25,14 @@ class Attribute
         'int' => '\d+',
         'float' => '\d+(\.\d+)',
         'uuid' => '[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}',
+        'uuid4' => '[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}',
+        'slug' => '[a-z0-9]+(?:-[a-z0-9]+)*',
         'md5' => '[0-9a-fA-F]{32}',
         'sha1' => '[0-9a-fA-F]{40}',
         'domain' => '([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}',
+    ];
+    public const DEPRECATED_TYPES = [
+        'uuid' => 'uuid4',
     ];
 
     /**
