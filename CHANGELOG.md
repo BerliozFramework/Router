@@ -8,8 +8,8 @@ use [Keep a Changelog] (http://keepachangelog.com/).
 
 ### Added
 
-- Compatilbity with `psr/http-message` ^2.0
-- Compatilbity with `psr/log` ^2.0 and ^3.0
+- Compatibility with `psr/http-message` ^2.0
+- Compatibility with `psr/log` ^2.0 and ^3.0
 
 ## [2.1.0] - 2023-08-29
 
