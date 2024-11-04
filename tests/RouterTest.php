@@ -22,6 +22,11 @@ use Berlioz\Router\Router;
 
 class RouterTest extends AbstractTestCase
 {
+    protected function setUp(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_PREFIX'] = null;
+    }
+
     public function testSerialization()
     {
         $router = new Router;
@@ -97,6 +102,54 @@ class RouterTest extends AbstractTestCase
                     'attr1' => 'test',
                     'attr2' => 'test2'
                 ]
+            )
+        );
+    }
+
+    public function testGenerate_withForwardedPrefix_enable()
+    {
+        $_SERVER['HTTP_X_FORWARDED_PREFIX'] = '/super-prefix/';
+
+        $router = new Router(['X-Forwarded-Prefix' => true]);
+        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
+
+        $this->assertEquals(
+            '/super-prefix/path/test/sub-path',
+            $router->generate(
+                'route1',
+                ['attr1' => 'test']
+            )
+        );
+    }
+
+    public function testGenerate_withForwardedPrefix_disable()
+    {
+        $_SERVER['HTTP_X_FORWARDED_PREFIX'] = '/super-prefix/';
+
+        $router = new Router(['X-Forwarded-Prefix' => false]);
+        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
+
+        $this->assertEquals(
+            '/path/test/sub-path',
+            $router->generate(
+                'route1',
+                ['attr1' => 'test']
+            )
+        );
+    }
+
+    public function testGenerate_withForwardedPrefix_custom()
+    {
+        $_SERVER['HTTP_X_FORWARDED_PREFIX_CUSTOM'] = '/super-prefix/';
+
+        $router = new Router(['X-Forwarded-Prefix' => 'X-Forwarded-Prefix-Custom']);
+        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
+
+        $this->assertEquals(
+            '/super-prefix/path/test/sub-path',
+            $router->generate(
+                'route1',
+                ['attr1' => 'test']
             )
         );
     }

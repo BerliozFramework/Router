@@ -32,16 +32,23 @@ class Router implements RouterInterface
     use LoggerAwareTrait;
     use RouteSetTrait;
 
+    private array $options = [
+        'X-Forwarded-Prefix' => false,
+    ];
+
     /**
      * Router constructor.
      *
+     * @param array $options
      * @param LoggerInterface|null $logger
      */
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(array $options = [], ?LoggerInterface $logger = null)
     {
         if (null !== $logger) {
             $this->setLogger($logger);
         }
+
+        $this->options = array_replace($this->options, $options);
     }
 
     /**
@@ -97,7 +104,18 @@ class Router implements RouterInterface
             throw new NotFoundException(sprintf('Route "%s" does not exists', $name));
         }
 
-        return $route->generate($parameters);
+        $str = $route->generate($parameters);
+
+        // X-Forwarded-Prefix
+        if (false !== $this->options['X-Forwarded-Prefix']) {
+            $xForwardedPrefix = $this->options['X-Forwarded-Prefix'] === true ? 'X-Forwarded-Prefix' : (string)$this->options['X-Forwarded-Prefix'];
+            $xForwardedPrefix = 'HTTP_' . strtoupper(str_replace('-', '_', $xForwardedPrefix));
+            if (!empty($prefix = $_SERVER[$xForwardedPrefix] ?? null)) {
+                $str = '/' . trim($prefix, '/') . $str;
+            }
+        }
+
+        return $str;
     }
 
     private function generateParameters(array|RouteAttributes $parameters = []): array

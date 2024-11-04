@@ -114,6 +114,12 @@ $router->addRoute(
 $route = $router->handle($serverRequest);
 ```
 
+#### Options
+
+| Options            | Type           | Description                                                                               |
+|--------------------|----------------|-------------------------------------------------------------------------------------------|
+| X-Forwarded-Prefix | boolean/string | Default to **false**, **true** to use "X-Forwarded-Prefix" value or custom name of header | 
+
 #### Generate path
 
 You can generate a path with some parameters directly with `Router` object.

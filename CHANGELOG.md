@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [2.3.0] - 2024-11-04
+
+### Added
+
+- Options for router
+- Option: "X-Forwarded-Prefix" (boolean, or string)
+
 ## [2.2.0] - 2024-10-18
 
 ### Added
