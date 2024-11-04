@@ -50,7 +50,7 @@ class RouterTest extends AbstractTestCase
     public function testGenerate()
     {
         $router = new Router;
-        $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
+        $router->addRoute($route1 = new Route('/path/{attr1}/sub-path', name: 'route1'));
         $router->addRoute(
             new Route(
                 '/path/{attr1}/sub-path/{attr2}',
@@ -63,6 +63,13 @@ class RouterTest extends AbstractTestCase
             '/path/test/sub-path',
             $router->generate(
                 'route1',
+                ['attr1' => 'test']
+            )
+        );
+        $this->assertEquals(
+            '/path/test/sub-path',
+            $router->generate(
+                $route1,
                 ['attr1' => 'test']
             )
         );

@@ -89,19 +89,20 @@ class Router implements RouterInterface
     /**
      * Generate route.
      *
-     * @param string $name
+     * @param string|RouteInterface $route
      * @param array|RouteAttributes $parameters
      *
      * @return string
+     * @throws NotFoundException
      * @throws RoutingException
      */
-    public function generate(string $name, array|RouteAttributes $parameters = []): string
+    public function generate(string|RouteInterface $route, array|RouteAttributes $parameters = []): string
     {
         $parameters = $this->generateParameters($parameters);
-        $route = $this->getRoute($name);
+        is_string($route) && $route = $this->getRoute($route);
 
         if (null === $route) {
-            throw new NotFoundException(sprintf('Route "%s" does not exists', $name));
+            throw new NotFoundException(sprintf('Route "%s" does not exists', $route));
         }
 
         $str = $route->generate($parameters);
