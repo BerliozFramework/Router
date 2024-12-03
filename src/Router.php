@@ -109,18 +109,32 @@ class Router implements RouterInterface
             throw new NotFoundException(sprintf('Route "%s" does not exists', $route));
         }
 
-        $str = $route->generate($parameters);
+        return $this->finalizePath($route->generate($parameters));
+    }
+
+    /**
+     * Finalize path.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public function finalizePath(string $path): string
+    {
+        if (true === str_contains($path, '://')) {
+            return $path;
+        }
 
         // X-Forwarded-Prefix
         if (false !== $this->options['X-Forwarded-Prefix']) {
             $xForwardedPrefix = $this->options['X-Forwarded-Prefix'] === true ? 'X-Forwarded-Prefix' : (string)$this->options['X-Forwarded-Prefix'];
             $xForwardedPrefix = 'HTTP_' . strtoupper(str_replace('-', '_', $xForwardedPrefix));
             if (!empty($prefix = $_SERVER[$xForwardedPrefix] ?? null)) {
-                $str = '/' . trim($prefix, '/') . $str;
+                $path = rtrim('/' . trim($prefix, '/'), '/') . '/' . ltrim($path, '/');
             }
         }
 
-        return $str;
+        return $path;
     }
 
     private function generateParameters(array|RouteAttributes $parameters = []): array
