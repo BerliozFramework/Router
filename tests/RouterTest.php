@@ -182,6 +182,7 @@ class RouterTest extends AbstractTestCase
         $router->addRoute(new Route('/path/{attr1}/sub-path', name: 'route1'));
 
         $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('Route "route2" does not exists');
         $router->generate('route2', ['attr2' => 'test2']);
     }
 
