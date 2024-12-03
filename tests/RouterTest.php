@@ -29,7 +29,7 @@ class RouterTest extends AbstractTestCase
 
     public function testSerialization()
     {
-        $router = new Router;
+        $router = new Router(options: ['foo' => 'bar']);
         $router->addRoute(new Route('/path'));
 
         $serialized = serialize($router);

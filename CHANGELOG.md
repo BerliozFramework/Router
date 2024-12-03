@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [2.4.1] - 2024-12-03
+
+### Fixed
+
+- Serialization of router options
+
 ## [2.4.0] - 2024-11-04
 
 ### Changed

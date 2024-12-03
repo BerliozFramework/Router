@@ -58,7 +58,10 @@ class Router implements RouterInterface
      */
     public function __serialize(): array
     {
-        return ['routes' => $this->routes];
+        return [
+            'options' => $this->options,
+            'routes' => $this->routes,
+        ];
     }
 
     /**
@@ -68,6 +71,7 @@ class Router implements RouterInterface
      */
     public function __unserialize(array $data): void
     {
+        $this->options = $data['options'];
         $this->routes = $data['routes'];
     }
 
