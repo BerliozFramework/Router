@@ -71,8 +71,8 @@ class Router implements RouterInterface
      */
     public function __unserialize(array $data): void
     {
-        $this->options = $data['options'];
-        $this->routes = $data['routes'];
+        $this->options = $data['options'] ?? [];
+        $this->routes = $data['routes'] ?? [];
     }
 
     /**

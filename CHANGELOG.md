@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [2.5.2] - 2024-12-04
+
+### Fixed
+
+- Prevent unserialize with no options
+
 ## [2.5.1] - 2024-12-03
 
 ### Fixed
