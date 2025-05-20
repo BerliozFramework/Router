@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. This projec
 to [Semantic Versioning] (http://semver.org/). For change log format,
 use [Keep a Changelog] (http://keepachangelog.com/).
 
+## [2.6.0] - 2025-05-20
+
+### Fixed
+
+- Compiled route on unserialization
+
+### Deprecated
+
+- Usage of `Router::isValid()` with string parameter
+
 ## [2.5.2] - 2024-12-04
 
 ### Fixed
