@@ -170,6 +170,10 @@ class Router implements RouterInterface
     public function isValid(ServerRequestInterface|string $request): bool
     {
         if (true === is_string($request)) {
+            trigger_error(
+                'No longer use the ' . __METHOD__ . ' method with string argument',
+                E_USER_DEPRECATED
+            );
             $request = new ServerRequest(Request::HTTP_METHOD_GET, $request);
         }
 
