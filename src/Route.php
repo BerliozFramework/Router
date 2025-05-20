@@ -172,7 +172,7 @@ class Route implements RouteInterface
         $this->routes = $data['routes'];
 
         // Set group parent
-        array_map(fn(Route $route) => $route->setParent($this), $this->routes);
+        array_map(fn(Route $route) => $route->parent = $this, $this->routes);
         array_map(fn(Attribute $attribute) => $attribute->setRoute($this), $this->attributes);
     }
 
