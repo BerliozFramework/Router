@@ -1,0 +1,35 @@
+{
+  "name": "berlioz/router",
+  "description": "Berlioz Router is a PHP library for manage HTTP routes, respecting PSR-7 (HTTP message interfaces) standard.",
+  "license": "MIT",
+  "homepage": "https://getberlioz.com",
+  "support": {
+    "issues": "https://github.com/BerliozFramework/Berlioz/issues",
+    "source": "https://github.com/BerliozFramework/Berlioz"
+  },
+  "authors": [
+    {
+      "name": "Ronan Giron",
+      "email": "ronan@getberlioz.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Berlioz\\Router\\": ""
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "berlioz/http-message": "self.version",
+    "psr/http-message": "^1.0 || ^2.0",
+    "psr/log": "^1.0 || ^2.0 || ^3.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "3.x-dev"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
