@@ -18,7 +18,7 @@
 
 **Berlioz Router** is a PHP library for manage HTTP routes, respecting PSR-7 (HTTP message interfaces) standard.
 
-📖 **[Full documentation](https://getberlioz.com/)**
+📖 **[Full documentation](https://getberlioz.com/docs/3.x/components/router)**
 
 ## Installation
 
@@ -30,4 +30,4 @@ $ composer require berlioz/router
 
 ## Documentation
 
-For usage and examples, visit the [official documentation on **getberlioz.com**](https://getberlioz.com/).
+For usage and examples, visit the [official documentation on **getberlioz.com**](https://getberlioz.com/docs/3.x/components/router).
