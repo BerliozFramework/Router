@@ -239,6 +239,7 @@ class Route implements RouteInterface
             Request::HTTP_METHOD_CONNECT,
             Request::HTTP_METHOD_TRACE,
             Request::HTTP_METHOD_PUT,
+            Request::HTTP_METHOD_PATCH,
             Request::HTTP_METHOD_DELETE,
         ];
 

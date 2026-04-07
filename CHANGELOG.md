@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix add PATCH to the list of default accepted HTTP methods
 - Fix `float` route type now accepts integer values
 
 ## [3.0.0] - 2026-02-19
