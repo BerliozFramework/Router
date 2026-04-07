@@ -28,7 +28,7 @@ trait RouteSetTrait
      */
     public function count(): int
     {
-        return count($this->routes, COUNT_RECURSIVE);
+        return iterator_count($this->getRoutes());
     }
 
     /**
