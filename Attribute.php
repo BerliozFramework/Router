@@ -23,7 +23,7 @@ class Attribute
 {
     public const TYPES = [
         'int' => '\d+',
-        'float' => '\d+(\.\d+)',
+        'float' => '\d+(?:\.\d+)?',
         'uuid' => '[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}',
         'uuid4' => '[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}',
         'slug' => '[a-z0-9]+(?:-[a-z0-9]+)*',
