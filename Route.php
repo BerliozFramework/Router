@@ -378,7 +378,7 @@ class Route implements RouteInterface
 
         $matches = [];
         if (preg_match(
-                '~^' . $this->getPathRegex() . '$~i',
+                "\x01^" . $this->getPathRegex() . "$\x01i",
                 $request->getUri()->getPath(),
                 $matches,
                 PREG_UNMATCHED_AS_NULL
