@@ -42,15 +42,14 @@ trait RouteSetTrait
     {
         /** @var Route $route */
         foreach ($this->routes as $route) {
+            if ($route->getName() === $name) {
+                return $route;
+            }
+
             if (true === $route->isGroup()) {
                 if (null !== ($found = $route->getRoute($name))) {
                     return $found;
                 }
-                continue;
-            }
-
-            if ($route->getName() === $name) {
-                return $route;
             }
         }
 
