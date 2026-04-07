@@ -121,7 +121,7 @@ class Router implements RouterInterface
      */
     public function finalizePath(string $path): string
     {
-        if (true === str_contains($path, '://')) {
+        if (1 === preg_match('#^[a-z][a-z0-9+\-.]*://#i', $path)) {
             return $path;
         }
 
