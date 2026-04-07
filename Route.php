@@ -81,10 +81,10 @@ class Route implements RouteInterface
                     $attribute = new Attribute($name, route: $this);
                     $this->attributes[$name] = $attribute;
 
-                    if (!empty($matches['regex'])) {
+                    if (isset($matches['regex']) && $matches['regex'] !== '') {
                         $attribute->setRegex($matches['regex']);
                     }
-                    if (!empty($matches['type'])) {
+                    if (isset($matches['type']) && $matches['type'] !== '') {
                         $this->attributes[$name]->setRegex(
                             Attribute::TYPES[$matches['type']] ??
                             throw new RoutingException(sprintf('Unknown type "%s"', $matches['type']))

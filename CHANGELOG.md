@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix inline regex `0` in route attribute is no longer silently dropped
 - Fix `finalizePath()` URI scheme check no longer triggered by user parameters
 - Fix `count()` now recursively counts all leaf routes including those in groups
 - Fix route regex delimiter no longer conflicts with user-supplied requirement patterns
