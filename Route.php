@@ -72,33 +72,36 @@ class Route implements RouteInterface
                 function ($matches) {
                     $name = $matches['name'];
 
-                    // Duplicated attribute
-                    if (!array_key_exists($name, $this->attributes)) {
-                        $attribute = new Attribute($name, route: $this);
-                        $this->attributes[$name] = $attribute;
+                    if (array_key_exists($name, $this->attributes)) {
+                        throw new RoutingException(
+                            sprintf('Duplicate attribute name "%s" in route path', $name)
+                        );
+                    }
 
-                        if (!empty($matches['regex'])) {
-                            $attribute->setRegex($matches['regex']);
-                        }
-                        if (!empty($matches['type'])) {
-                            $this->attributes[$name]->setRegex(
-                                Attribute::TYPES[$matches['type']] ??
-                                throw new RoutingException(sprintf('Unknown type "%s"', $matches['type']))
+                    $attribute = new Attribute($name, route: $this);
+                    $this->attributes[$name] = $attribute;
+
+                    if (!empty($matches['regex'])) {
+                        $attribute->setRegex($matches['regex']);
+                    }
+                    if (!empty($matches['type'])) {
+                        $this->attributes[$name]->setRegex(
+                            Attribute::TYPES[$matches['type']] ??
+                            throw new RoutingException(sprintf('Unknown type "%s"', $matches['type']))
+                        );
+
+                        // Deprecated type?
+                        if (array_key_exists($matches['type'], Attribute::DEPRECATED_TYPES)) {
+                            $deprecated = Attribute::DEPRECATED_TYPES[$matches['type']];
+
+                            trigger_error(
+                                sprintf(
+                                    'Attribute type "%s" is deprecated%s',
+                                    $matches['type'],
+                                    $deprecated ? sprintf(' use "%s" instead', $deprecated) : ''
+                                ),
+                                E_USER_DEPRECATED
                             );
-
-                            // Deprecated type?
-                            if (array_key_exists($matches['type'], Attribute::DEPRECATED_TYPES)) {
-                                $deprecated = Attribute::DEPRECATED_TYPES[$matches['type']];
-
-                                trigger_error(
-                                    sprintf(
-                                        'Attribute type "%s" is deprecated%s',
-                                        $matches['type'],
-                                        $deprecated ? sprintf(' use "%s" instead', $deprecated) : ''
-                                    ),
-                                    E_USER_DEPRECATED
-                                );
-                            }
                         }
                     }
 

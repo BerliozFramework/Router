@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Host restrictions are now inherited from parent route groups
+- Duplicate attribute names in route path now throw `RoutingException`
 
 ### Fixed
 
