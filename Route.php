@@ -261,7 +261,7 @@ class Route implements RouteInterface
      */
     public function getHosts(): ?array
     {
-        return $this->host;
+        return $this->host ?? $this->parent?->getHosts();
     }
 
     /**

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Host restrictions are now inherited from parent route groups
+
 ### Fixed
 
 - Fix add PATCH to the list of default accepted HTTP methods
