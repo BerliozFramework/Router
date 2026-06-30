@@ -128,12 +128,12 @@ class Route implements RouteInterface
 
         if (null !== $method) {
             $this->method = (array)$method;
-            array_walk($this->method, fn(&$value) => $value = strtoupper($value));
+            array_walk($this->method, fn(&$value) => $value = strtoupper((string)$value));
         }
 
         if (null !== $host) {
             $this->host = (array)$host;
-            array_walk($this->host, fn(&$value) => $value = strtolower($value));
+            array_walk($this->host, fn(&$value) => $value = strtolower((string)$value));
         }
     }
 
@@ -405,7 +405,7 @@ class Route implements RouteInterface
             }
         }
 
-        $attributes = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+        $attributes = array_filter($matches, is_string(...), ARRAY_FILTER_USE_KEY);
         $attributes = array_filter($attributes, fn($value) => null !== $value);
 
         return true;
@@ -462,10 +462,10 @@ class Route implements RouteInterface
 
         // Check if missing attribute
         $matches = [];
-        if (str_contains($path, '{')) {
+        if (str_contains((string)$path, '{')) {
             if (preg_match_all(
                     '~{(?<name>' . static::REGEX_ATTRIBUTE_NAME . ')}~',
-                    $path,
+                    (string)$path,
                     $matches,
                     PREG_PATTERN_ORDER
                 ) > 0) {
@@ -476,7 +476,7 @@ class Route implements RouteInterface
         // Remove brackets
         $count = 0;
         do {
-            $path = preg_replace('~\[([^][]*)\]~', '\\1', $path, -1, $count);
+            $path = preg_replace('~\[([^][]*)\]~', '\\1', (string)$path, -1, $count);
         } while ($count > 0);
 
         // Add over parameters to query string
@@ -502,7 +502,7 @@ class Route implements RouteInterface
     {
         array_walk(
             $parameters,
-            function (&$param) {
+            function (&$param): void {
                 if (is_array($param)) {
                     $param = $this->filterParameters($param);
                     $param = array_filter($param, fn($value) => null !== $value);

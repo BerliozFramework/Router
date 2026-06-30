@@ -130,7 +130,7 @@ class Router implements RouterInterface
             $xForwardedPrefix = $this->options['X-Forwarded-Prefix'] === true ? 'X-Forwarded-Prefix' : (string)$this->options['X-Forwarded-Prefix'];
             $xForwardedPrefix = 'HTTP_' . strtoupper(str_replace('-', '_', $xForwardedPrefix));
             if (!empty($prefix = $_SERVER[$xForwardedPrefix] ?? null)) {
-                $path = rtrim('/' . trim($prefix, '/'), '/') . '/' . ltrim($path, '/');
+                $path = rtrim('/' . trim((string)$prefix, '/'), '/') . '/' . ltrim($path, '/');
             }
         }
 
@@ -147,7 +147,7 @@ class Router implements RouterInterface
 
         array_walk(
             $parameters,
-            function ($parameter, $key) use (&$finalParameters) {
+            function ($parameter, $key) use (&$finalParameters): void {
                 if ($parameter instanceof RouteAttributes) {
                     $finalParameters = array_merge($finalParameters, $parameter->routeAttributes());
                     return;

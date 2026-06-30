@@ -121,9 +121,10 @@ trait RouteSetTrait
     {
         usort(
             $this->routes,
-            function (RouteInterface $route1, RouteInterface $route2) {
-                return (int)$route2->getPriority() <=> (int)$route1->getPriority();
-            }
+            fn(
+                RouteInterface $route1,
+                RouteInterface $route2
+            ) => (int)$route2->getPriority() <=> (int)$route1->getPriority()
         );
     }
 }
