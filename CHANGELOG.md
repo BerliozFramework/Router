@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix inline route attribute regex containing curly braces (quantifiers like `{2}` or `{1,3}`) is no longer truncated at the first closing brace
+
 ## [3.1.1] - 2026-06-10
 
 _No changes in this release._

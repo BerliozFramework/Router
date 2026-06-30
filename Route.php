@@ -29,7 +29,11 @@ class Route implements RouteInterface
 {
     use RouteSetTrait;
 
-    protected const REGEX_ATTRIBUTE = '/{(?<name>' . Route::REGEX_ATTRIBUTE_NAME . ')(?:::(?<type>\w+)|:(?<regex>[^}]+))?}/i';
+    // The "regex" capture balances curly braces (recursive "braces" subpattern) so that inline regular
+    // expressions containing quantifiers like "{2}" or "{1,3}" are captured in full instead of being
+    // truncated at the first closing brace.
+    protected const REGEX_ATTRIBUTE = '/{(?<name>' . Route::REGEX_ATTRIBUTE_NAME .
+    ')(?:::(?<type>\w+)|:(?<regex>(?:[^{}]++|(?<braces>\{(?:[^{}]++|(?&braces))*\}))++))?}/i';
     protected const REGEX_ATTRIBUTE_NAME = '[\w_]+';
     protected const REGEX_ATTRIBUTE_VALUE = '[^/]+';
     private ?array $method = null;
