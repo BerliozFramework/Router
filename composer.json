@@ -20,6 +20,7 @@
   },
   "require": {
     "php": "^8.2",
+    "berlioz/helpers": "^1.15",
     "berlioz/http-message": "self.version",
     "psr/http-message": "^2.0",
     "psr/log": "^2.0 || ^3.0"

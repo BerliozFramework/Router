@@ -36,6 +36,31 @@ interface RouterInterface extends RouteSetInterface
     public function generate(string|RouteInterface $route, array|RouteAttributes $parameters = []): string;
 
     /**
+     * Finalize path.
+     *
+     * Prepends the reverse-proxy prefix (`X-Forwarded-Prefix`) to the given path
+     * when the request comes from a trusted proxy.
+     *
+     * @param string $path
+     * @param array|null $serverParams Explicit parameters; null uses the current context, then `$_SERVER`
+     *
+     * @return string
+     */
+    public function finalizePath(string $path, ?array $serverParams = null): string;
+
+    /**
+     * Set the request context used to finalize paths and generate URLs.
+     *
+     * The context must not be serialized. An empty array disables fallback to globals;
+     * null clears the context and restores the `$_SERVER` fallback.
+     *
+     * @param array|null $serverParams Current request server parameters
+     *
+     * @return void
+     */
+    public function setServerParams(?array $serverParams): void;
+
+    /**
      * Is valid request?
      *
      * @param ServerRequestInterface|string $request

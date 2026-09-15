@@ -32,8 +32,12 @@ class Router implements RouterInterface
     use LoggerAwareTrait;
     use RouteSetTrait;
 
+    private ?array $serverParams = null;
+    private ?ForwardedPrefixResolver $forwardedPrefixResolver = null;
+
     private array $options = [
         'X-Forwarded-Prefix' => false,
+        'trustedProxies' => [],
     ];
 
     /**
@@ -71,8 +75,18 @@ class Router implements RouterInterface
      */
     public function __unserialize(array $data): void
     {
+        $this->serverParams = null;
+        $this->forwardedPrefixResolver = null;
         $this->options = $data['options'] ?? [];
         $this->routes = $data['routes'] ?? [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setServerParams(?array $serverParams): void
+    {
+        $this->serverParams = $serverParams;
     }
 
     /**
@@ -115,26 +129,46 @@ class Router implements RouterInterface
     /**
      * Finalize path.
      *
+     * Prepends the reverse-proxy prefix (`X-Forwarded-Prefix`) to the given path
+     * when the request comes from a trusted proxy.
+     *
+     * The `$serverParams` argument lets a caller (e.g. a PSR-7 middleware) provide
+     * the server parameters explicitly; when `null`, the current router context is
+     * used, falling back to `$_SERVER` when no context has been set.
+     *
      * @param string $path
+     * @param array|null $serverParams Explicit parameters overriding the current context
      *
      * @return string
      */
-    public function finalizePath(string $path): string
+    public function finalizePath(string $path, ?array $serverParams = null): string
     {
         if (1 === preg_match('#^[a-z][a-z0-9+\-.]*://#i', $path)) {
             return $path;
         }
 
-        // X-Forwarded-Prefix
-        if (false !== $this->options['X-Forwarded-Prefix']) {
-            $xForwardedPrefix = $this->options['X-Forwarded-Prefix'] === true ? 'X-Forwarded-Prefix' : (string)$this->options['X-Forwarded-Prefix'];
-            $xForwardedPrefix = 'HTTP_' . strtoupper(str_replace('-', '_', $xForwardedPrefix));
-            if (!empty($prefix = $_SERVER[$xForwardedPrefix] ?? null)) {
-                $path = rtrim('/' . trim((string)$prefix, '/'), '/') . '/' . ltrim($path, '/');
-            }
+        $prefix = $this->getForwardedPrefixResolver()->resolve($serverParams ?? $this->serverParams ?? $_SERVER);
+
+        if (null === $prefix) {
+            return $path;
         }
 
-        return $path;
+        return $prefix . '/' . ltrim($path, '/');
+    }
+
+    /**
+     * Get the resolver built from this router's effective options.
+     *
+     * @return ForwardedPrefixResolver
+     */
+    public function getForwardedPrefixResolver(): ForwardedPrefixResolver
+    {
+        $header = $this->options['X-Forwarded-Prefix'] ?? false;
+
+        return $this->forwardedPrefixResolver ??= new ForwardedPrefixResolver(
+            header: is_bool($header) ? $header : (string)$header,
+            trustedProxies: (array)($this->options['trustedProxies'] ?? []),
+        );
     }
 
     private function generateParameters(array|RouteAttributes $parameters = []): array
