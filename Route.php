@@ -248,6 +248,7 @@ class Route implements RouteInterface
             Request::HTTP_METHOD_PUT,
             Request::HTTP_METHOD_PATCH,
             Request::HTTP_METHOD_DELETE,
+            Request::HTTP_METHOD_QUERY,
         ];
 
         if (null === $this->method) {
